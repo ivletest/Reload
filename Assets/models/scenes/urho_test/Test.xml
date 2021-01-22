@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<node id="1">
+	<attribute name="Name" value="" />
+	<attribute name="Time Scale" value="1" />
+	<attribute name="Smoothing Constant" value="50" />
+	<attribute name="Snap Threshold" value="5" />
+	<attribute name="Elapsed Time" value="25.3456" />
+	<attribute name="Next Replicated Node ID" value="5" />
+	<attribute name="Next Replicated Component ID" value="10" />
+	<attribute name="Next Local Node ID" value="16786441" />
+	<attribute name="Next Local Component ID" value="16786531" />
+	<attribute name="Variables" />
+	<attribute name="Variable Names" value="" />
+	<component type="Octree" id="1" />
+	<component type="DebugRenderer" id="2" />
+	<component type="PhysicsWorld" id="7" />
+	<node id="2">
+		<attribute name="Is Enabled" value="true" />
+		<attribute name="Name" value="" />
+		<attribute name="Tags" />
+		<attribute name="Position" value="0 0 0" />
+		<attribute name="Rotation" value="1 0 0 0" />
+		<attribute name="Scale" value="1 1 1" />
+		<attribute name="Variables" />
+		<node id="16777217">
+			<attribute name="Is Enabled" value="true" />
+			<attribute name="Name" value="" />
+			<attribute name="Tags" />
+			<attribute name="Position" value="0 0 0" />
+			<attribute name="Rotation" value="1 0 0 0" />
+			<attribute name="Scale" value="1 1 1" />
+			<attribute name="Variables" />
+			<component type="Terrain" id="16777228">
+				<attribute name="Height Map" value="Image;Textures/HeightMap.png" />
+				<attribute name="Material" value="Material;Materials/Terrain.xml" />
+			</component>
+			<component type="CollisionShape" id="16779277">
+				<attribute name="Shape Type" value="Terrain" />
+			</component>
+			<component type="RigidBody" id="16779278">
+				<attribute name="Use Gravity" value="false" />
+			</component>
+		</node>
+	</node>
+	<node id="3">
+		<attribute name="Is Enabled" value="true" />
+		<attribute name="Name" value="" />
+		<attribute name="Tags" />
+		<attribute name="Position" value="38.407 37.8448 -35.5493" />
+		<attribute name="Rotation" value="0.817985 -0.185283 -0.535493 -0.0990889" />
+		<attribute name="Scale" value="5 5 5" />
+		<attribute name="Variables" />
+		<component type="StaticModel" id="5">
+			<attribute name="Model" value="Model;Models/Box.mdl" />
+			<attribute name="Material" value="Material;Materials/Stone.xml" />
+		</component>
+		<component type="CollisionShape" id="8" />
+		<component type="RigidBody" id="9">
+			<attribute name="Physics Rotation" value="0.817985 -0.185283 -0.535492 -0.0990888" />
+			<attribute name="Physics Position" value="38.407 37.8448 -35.5493" />
+			<attribute name="Mass" value="10" />
+			<attribute name="Linear Velocity" value="-6.84485 -4.48456 -0.954172" />
+			<attribute name="Angular Velocity" value="0.513472 0.138709 0.565919" />
+		</component>
+	</node>
+	<node id="4">
+		<attribute name="Is Enabled" value="true" />
+		<attribute name="Name" value="" />
+		<attribute name="Tags" />
+		<attribute name="Position" value="0 42.6171 0" />
+		<attribute name="Rotation" value="0.975802 0.218654 0 0" />
+		<attribute name="Scale" value="1 1 1" />
+		<attribute name="Variables" />
+		<component type="Light" id="6">
+			<attribute name="Light Type" value="Directional" />
+		</component>
+	</node>
+</node>
