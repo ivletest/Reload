@@ -61,6 +61,7 @@ namespace Reload
             Object3D& parent, 
             Magnum::UnsignedInt i);
 
+        ReloadResourceManager _resourceManager;
         Magnum::Shaders::Phong _coloredShader;
         Magnum::Shaders::Phong _texturedShader{Magnum::Shaders::Phong::Flag::DiffuseTexture};
         Magnum::Containers::Array<Magnum::Containers::Optional<Magnum::GL::Mesh>> _meshes;

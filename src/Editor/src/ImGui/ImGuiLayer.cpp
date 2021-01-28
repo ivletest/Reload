@@ -1,12 +1,5 @@
 #include "ImGui/ImGuiLayer.h"
 
-#ifdef SDL2_APPLICATION
-#include <imgui_impl_sdl.h>
-#ifdef OPENGL
-#define IMGUI_IMPL_OPENGL_LOADER_GLBINDING2
-#include <imgui_impl_opengl3.h>
-#endif
-#endif
 #include <Corrade/Utility/Directory.h>
 
 #include "Editor.h"
@@ -51,7 +44,8 @@ namespace ReloadEditor
             {Corrade::Utility::Directory::current(), "Assets", "Fonts"});
 
         ImFont *pFont = io.Fonts->AddFontFromFileTTF(
-            Corrade::Utility::Directory::join(fontsDir, "IBMPlexMono-Regular.ttf").c_str(),
+            Corrade::Utility::Directory::join(
+                fontsDir, "IBMPlexMono-Regular.ttf").c_str(),
             18.0f);
 
         io.FontDefault = io.Fonts->Fonts.back();
@@ -68,19 +62,10 @@ namespace ReloadEditor
             style.Colors[ImGuiCol_WindowBg].w = 1.0f;
         }
         style.Colors[ImGuiCol_WindowBg] = ImVec4(0.15f, 0.15f, 0.15f, style.Colors[ImGuiCol_WindowBg].w);
-
-#ifdef SDL2_APPLICATION
-        ImGui_ImplSDL2_InitForOpenGL(Editor::Get().window(), Editor::Get().glContext());
-        ImGui_ImplOpenGL3_Init("#version 410");
-#endif
     }
 
     void ImGuiLayer::OnDetach()
     {
-#ifdef SDL2_APPLICATION
-        ImGui_ImplOpenGL3_Shutdown();
-        ImGui_ImplSDL2_Shutdown();
-#endif
         ImGui::DestroyContext();
     }
 
@@ -142,10 +127,6 @@ namespace ReloadEditor
 
     void ImGuiLayer::Begin()
     {
-#ifdef SDL2_APPLICATION
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplSDL2_NewFrame(Editor::Get().window());
-#endif
         _imgui.newFrame();
 
         // ImGuizmo::BeginFrame();

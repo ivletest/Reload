@@ -1,15 +1,16 @@
 #include "Renderer/GridRenderer.h"
 
-#include <Magnum/SceneGraph/Camera.h>
-#include <Magnum/DebugTools/ResourceManager.h>
-
 #include "Types.h"
 
 using namespace Magnum;
 
 namespace Reload
 {
-    // Color3 GridRenderer::getLineColor(Float i, const Magnum::Color3 &baseColor, const Magnum::Color3 &axesColor, const Magnum::Color3 &subColor)
+    // Color3 GridRenderer::getLineColor(
+    //     Float i, 
+    //     const Color3 &baseColor, 
+    //     const Color3 &axesColor, 
+    //     const Color3 &subColor)
     // {
     //     if (i == 0)
     //     {
@@ -24,7 +25,8 @@ namespace Reload
     //     return baseColor;
     // }
 
-    // GridRenderer::GridRenderer(Object3D &object, Magnum::SceneGraph::DrawableGroup3D *drawables) : SceneGraph::Drawable3D{object, drawables}
+    // GridRenderer::GridRenderer(Object3D &object, Magnum::SceneGraph::DrawableGroup3D *drawables) 
+    //     : SceneGraph::Drawable3D{object, drawables}
     // {
     //     _shader = resourceManager.get<GL::AbstractShaderProgram, Shaders::VertexColor3D>("VertexColorShader3D");
     //     if (!_shader)

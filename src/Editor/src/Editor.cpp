@@ -31,7 +31,6 @@ namespace ReloadEditor
             create(conf, glConf.setSampleCount(0));
         }
 
-        // _scene.emplace(windowSize(), framebufferSize());
         _imguiLayer.emplace("EditorUI");
         _imguiLayer->OnAttach();
         _editor.emplace();
@@ -64,12 +63,10 @@ namespace ReloadEditor
         bool camChanged = false;
         // _scene->DrawEvent(camChanged);
         _editor->OnUpdate();
-        _editor->GetScene()->OnDrawEvent(camChanged);
 
         _imguiLayer->Begin();
         ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
-        ImGui::ShowDemoWindow();
-        // _editor->OnImGuiRender();
+        _editor->OnImGuiRender();
         _imguiLayer->End();
         
         swapBuffers();
@@ -98,7 +95,7 @@ namespace ReloadEditor
     void Editor::mouseReleaseEvent(MouseEvent &event)
     {
         _imguiLayer->OnMouseRelease(event);
-        _editor->GetScene()->OnMouseRelease(event);
+        _editor->OnMouseRelease(event);
     }
 
     void Editor::mouseScrollEvent(MouseScrollEvent &event)

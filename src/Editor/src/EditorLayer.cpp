@@ -1,8 +1,18 @@
 #include "EditorLayer.h"
+
+#include <Corrade/PluginManager/Manager.h>
+#include <Magnum/Trade/AbstractImporter.h>
+#include <MagnumPlugins/TgaImporter/TgaImporter.h>
+#include <Corrade/Utility/Directory.h>
+
 #include "Editor.h"
+
+using namespace Magnum;
 
 namespace ReloadEditor
 {
+	const std::string TGA_IMPORTER = "TgaImporter";
+	const ImVec2 TEX_THUMB_SIZE = ImVec2(32, 32);
 
 	static void ImGuiShowHelpMarker(const char *desc)
 	{
@@ -19,6 +29,29 @@ namespace ReloadEditor
 
 	EditorLayer::EditorLayer() : m_SceneType(SceneType::Model)
 	{
+		/* Setup the resource manager */
+		{
+			// Containers::Pointer<Trade::AbstractImporter> imageImporter =
+			// 	manager.loadAndInstantiate("TgaImporter");
+
+			// Containers::Pointer<Trade::AbstractImporter> gltfImporter =
+			// 	manager.loadAndInstantiate("TinyGltfImporter");
+
+			// CORRADE_INTERNAL_ASSERT(imageImporter);
+			// CORRADE_INTERNAL_ASSERT(gltfImporter);
+
+			// _resourceManager.set(
+			// 	"tga-importer",
+			// 	imageImporter.release(),
+			// 	ResourceDataState::Final,
+			// 	ResourcePolicy::Manual);
+
+			// _resourceManager.set(
+			// 	"tiny-gltf-importer",
+			// 	gltfImporter.release(),
+			// 	ResourceDataState::Final,
+			// 	ResourcePolicy::Manual);
+		}
 	}
 
 	EditorLayer::~EditorLayer()
@@ -76,8 +109,8 @@ namespace ReloadEditor
 
 		// Model Scene
 		{
-			Editor &editor = Editor::Get();
-			_scene.emplace(editor.windowSize(), editor.framebufferSize());
+			m_ActiveScene.emplace(Editor::Get().windowSize(), Editor::Get().framebufferSize());
+
 			// _scene->SetCamera(Camera(glm::perspectiveFov(glm::radians(45.0f), 1280.0f, 720.0f, 0.1f, 10000.0f)));
 
 			// _scene->SetEnvironment(environment);
@@ -148,7 +181,32 @@ namespace ReloadEditor
 		// 	m_PlaneMesh.reset(new Mesh("assets/models/Plane1m.obj"));
 
 		// 	// Editor
-		// 	m_CheckerboardTex = Texture2D::Create("assets/editor/Checkerboard.tga");
+
+		if (!(_pluginManager.load(TGA_IMPORTER) & PluginManager::LoadState::Loaded))
+		{
+			Utility::Error{}
+				<< "The requested plugin" << TGA_IMPORTER << "cannot be loaded.";
+		}
+
+		auto checkerBoardImage = Corrade::Utility::Directory::join(
+			{Corrade::Utility::Directory::current(), "Assets", "img", "Editor", "Checkerboard.tga"});
+
+		Containers::Pointer<Trade::AbstractImporter> importer =
+			_pluginManager.instantiate(TGA_IMPORTER);
+
+		if (!importer->openFile(checkerBoardImage))
+		{
+			std::exit(1);
+		}
+
+		Containers::Optional<Trade::ImageData2D> image = importer->image2D(0);
+		CORRADE_INTERNAL_ASSERT(image);
+		_checkerboardTex
+			.setWrapping(GL::SamplerWrapping::ClampToEdge)
+			.setMagnificationFilter(GL::SamplerFilter::Nearest)
+			.setMinificationFilter(GL::SamplerFilter::Nearest)
+			.setStorage(1, GL::textureFormat(image->format()), image->size())
+			.setSubImage(0, {}, *image);
 
 		// 	// Set lights
 		// 	auto& light = _scene->GetLight();
@@ -352,10 +410,12 @@ namespace ReloadEditor
 
 		// When using ImGuiDockNodeFlags_PassthruDockspace, DockSpace() will render our background and handle the pass-thru hole, so we ask Begin() to not render a background.
 		// if (opt_flags & ImGuiDockNodeFlags_PassthruDockspace)
+		// {
 		// 	window_flags |= ImGuiWindowFlags_NoBackground;
+		// }
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		ImGui::Begin("DockSpace Demo", &p_open, window_flags);
+		ImGui::Begin("DockSpace", &p_open, window_flags);
 		ImGui::PopStyleVar();
 
 		if (opt_fullscreen)
@@ -369,15 +429,20 @@ namespace ReloadEditor
 			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), opt_flags);
 		}
 
-		// Editor Panel ------------------------------------------------------------------------------
+		// // Editor Panel ------------------------------------------------------------------------------
 		ImGui::Begin("Model");
 		if (ImGui::RadioButton("Spheres", (int *)&m_SceneType, (int)SceneType::Spheres))
+		{
 			// m_ActiveScene = m_SphereScene;
-			ImGui::SameLine();
+		}
+		ImGui::SameLine();
 		if (ImGui::RadioButton("Model", (int *)&m_SceneType, (int)SceneType::Model))
-			// m_ActiveScene = _scene;
+		{
+			// _activeScene.emplace(_resourceManager, Editor::Get().windowSize(), Editor::Get().framebufferSize());
+		}
+		ImGui::End(); // Model
 
-			ImGui::Begin("Environment");
+		ImGui::Begin("Environment");
 
 		if (ImGui::Button("Load Environment Map"))
 		{
@@ -411,8 +476,6 @@ namespace ReloadEditor
 
 		ImGui::Columns(1);
 
-		ImGui::End();
-
 		ImGui::Separator();
 		{
 			ImGui::Text("Mesh");
@@ -435,43 +498,53 @@ namespace ReloadEditor
 		}
 		ImGui::Separator();
 
-		// Textures ------------------------------------------------------------------------------
+		// // Textures ------------------------------------------------------------------------------
 		{
 			// Albedo
 			if (ImGui::CollapsingHeader("Albedo", nullptr, ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 10));
-				// ImGui::Image(m_AlbedoInput.TextureMap ? (void*)m_AlbedoInput.TextureMap->GetRendererID() : (void*)m_CheckerboardTex->GetRendererID(), ImVec2(64, 64));
+
+				ImGui::Image(
+					m_AlbedoInput.TextureMap
+						? reinterpret_cast<ImTextureID>(&m_AlbedoInput.TextureMap)
+						: reinterpret_cast<ImTextureID>(&_checkerboardTex),
+					TEX_THUMB_SIZE);
+
 				ImGui::PopStyleVar();
 				if (ImGui::IsItemHovered())
 				{
-					// if (m_AlbedoInput.TextureMap)
-					// {
-					// 	ImGui::BeginTooltip();
-					// 	ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-					// 	ImGui::TextUnformatted(m_AlbedoInput.TextureMap->GetPath().c_str());
-					// 	ImGui::PopTextWrapPos();
-					// 	ImGui::Image((void*)m_AlbedoInput.TextureMap->GetRendererID(), ImVec2(384, 384));
-					// 	ImGui::EndTooltip();
-					// }
-					// if (ImGui::IsItemClicked())
-					// {
-					// 	std::string filename = Application::Get().OpenFile("");
-					// 	if (filename != "")
-					// 		m_AlbedoInput.TextureMap = Texture2D::Create(filename, m_AlbedoInput.SRGB);
-					// }
+					if (m_AlbedoInput.TextureMap)
+					{
+						ImGui::BeginTooltip();
+						ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+						// ImGui::TextUnformatted(m_AlbedoInput.TextureMap->GetPath().c_str());
+						ImGui::PopTextWrapPos();
+						ImGui::Image(reinterpret_cast<ImTextureID>(&m_AlbedoInput.TextureMap), ImVec2(384, 384));
+						ImGui::EndTooltip();
+					}
+					if (ImGui::IsItemClicked())
+					{
+						// std::string filename = Editor::Get().OpenFile("");
+						// if (filename != "")
+						// {
+						// 	_albedoInput.TextureMap = Texture2D::Create(filename, m_AlbedoInput.SRGB);
+						// }
+					}
 				}
 				ImGui::SameLine();
 				ImGui::BeginGroup();
 				ImGui::Checkbox("Use##AlbedoMap", &m_AlbedoInput.UseTexture);
 				if (ImGui::Checkbox("sRGB##AlbedoMap", &m_AlbedoInput.SRGB))
 				{
-					// if (m_AlbedoInput.TextureMap)
-					// 	m_AlbedoInput.TextureMap = Texture2D::Create(m_AlbedoInput.TextureMap->GetPath(), m_AlbedoInput.SRGB);
+					if (m_AlbedoInput.TextureMap)
+					{
+						// _albedoInput.TextureMap = Texture2D::Create(_albedoInput.TextureMap->GetPath(), _albedoInput.SRGB);
+					}
 				}
 				ImGui::EndGroup();
 				ImGui::SameLine();
-				// ImGui::ColorEdit3("Color##Albedo", glm::value_ptr(m_AlbedoInput.Color), ImGuiColorEditFlags_NoInputs);
+				ImGui::ColorEdit3("Color##Albedo", m_AlbedoInput.Color.data(), ImGuiColorEditFlags_NoInputs);
 			}
 		}
 		{
@@ -479,25 +552,28 @@ namespace ReloadEditor
 			if (ImGui::CollapsingHeader("Normals", nullptr, ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 10));
-				// ImGui::Image(m_NormalInput.TextureMap ? (void*)m_NormalInput.TextureMap->GetRendererID() : (void*)m_CheckerboardTex->GetRendererID(), ImVec2(64, 64));
+				ImGui::Image(m_NormalInput.TextureMap
+								 ? reinterpret_cast<ImTextureID>(&m_NormalInput.TextureMap)
+								 : reinterpret_cast<ImTextureID>(&_checkerboardTex),
+							 TEX_THUMB_SIZE);
 				ImGui::PopStyleVar();
 				if (ImGui::IsItemHovered())
 				{
-					// if (m_NormalInput.TextureMap)
-					// {
-					// 	ImGui::BeginTooltip();
-					// 	ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-					// 	ImGui::TextUnformatted(m_NormalInput.TextureMap->GetPath().c_str());
-					// 	ImGui::PopTextWrapPos();
-					// 	ImGui::Image((void*)m_NormalInput.TextureMap->GetRendererID(), ImVec2(384, 384));
-					// 	ImGui::EndTooltip();
-					// }
-					// if (ImGui::IsItemClicked())
-					// {
-					// 	std::string filename = Application::Get().OpenFile("");
-					// 	if (filename != "")
-					// 		m_NormalInput.TextureMap = Texture2D::Create(filename);
-					// }
+					if (m_NormalInput.TextureMap)
+					{
+						ImGui::BeginTooltip();
+						ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+						ImGui::TextUnformatted(m_NormalInput.TextureMap->label().c_str());
+						ImGui::PopTextWrapPos();
+						ImGui::Image(reinterpret_cast<ImTextureID>(&m_NormalInput.TextureMap), ImVec2(384, 384));
+						ImGui::EndTooltip();
+					}
+					if (ImGui::IsItemClicked())
+					{
+						// std::string filename = Editor::Get().OpenFile("");
+						// if (filename != "")
+						// 	_normalInput.TextureMap = Texture2D::Create(filename);
+					}
 				}
 				ImGui::SameLine();
 				ImGui::Checkbox("Use##NormalMap", &m_NormalInput.UseTexture);
@@ -508,25 +584,29 @@ namespace ReloadEditor
 			if (ImGui::CollapsingHeader("Metalness", nullptr, ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 10));
-				// ImGui::Image(m_MetalnessInput.TextureMap ? (void*)m_MetalnessInput.TextureMap->GetRendererID() : (void*)m_CheckerboardTex->GetRendererID(), ImVec2(64, 64));
+				ImGui::Image(
+					m_MetalnessInput.TextureMap
+						? reinterpret_cast<ImTextureID>(&m_MetalnessInput.TextureMap)
+						: reinterpret_cast<ImTextureID>(&_checkerboardTex),
+					TEX_THUMB_SIZE);
 				ImGui::PopStyleVar();
 				if (ImGui::IsItemHovered())
 				{
-					// if (m_MetalnessInput.TextureMap)
-					// {
-					// 	ImGui::BeginTooltip();
-					// 	ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-					// 	ImGui::TextUnformatted(m_MetalnessInput.TextureMap->GetPath().c_str());
-					// 	ImGui::PopTextWrapPos();
-					// 	ImGui::Image((void*)m_MetalnessInput.TextureMap->GetRendererID(), ImVec2(384, 384));
-					// 	ImGui::EndTooltip();
-					// }
-					// if (ImGui::IsItemClicked())
-					// {
-					// 	std::string filename = Application::Get().OpenFile("");
-					// 	if (filename != "")
-					// 		m_MetalnessInput.TextureMap = Texture2D::Create(filename);
-					// }
+					if (m_MetalnessInput.TextureMap)
+					{
+						ImGui::BeginTooltip();
+						ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+						ImGui::TextUnformatted(m_MetalnessInput.TextureMap->label().c_str());
+						ImGui::PopTextWrapPos();
+						ImGui::Image(reinterpret_cast<ImTextureID>(&m_MetalnessInput.TextureMap), ImVec2(384, 384));
+						ImGui::EndTooltip();
+					}
+					if (ImGui::IsItemClicked())
+					{
+						// std::string filename = Application::Get().OpenFile("");
+						// if (filename != "")
+						// 	m_MetalnessInput.TextureMap = Texture2D::Create(filename);
+					}
 				}
 				ImGui::SameLine();
 				ImGui::Checkbox("Use##MetalnessMap", &m_MetalnessInput.UseTexture);
@@ -539,25 +619,29 @@ namespace ReloadEditor
 			if (ImGui::CollapsingHeader("Roughness", nullptr, ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 10));
-				// ImGui::Image(m_RoughnessInput.TextureMap ? (void*)m_RoughnessInput.TextureMap->GetRendererID() : (void*)m_CheckerboardTex->GetRendererID(), ImVec2(64, 64));
+				ImGui::Image(
+					m_RoughnessInput.TextureMap
+						? reinterpret_cast<ImTextureID>(&m_RoughnessInput.TextureMap)
+						: reinterpret_cast<ImTextureID>(&_checkerboardTex),
+					TEX_THUMB_SIZE);
 				ImGui::PopStyleVar();
 				if (ImGui::IsItemHovered())
 				{
-					// if (m_RoughnessInput.TextureMap)
-					// {
-					// 	ImGui::BeginTooltip();
-					// 	ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-					// 	ImGui::TextUnformatted(m_RoughnessInput.TextureMap->GetPath().c_str());
-					// 	ImGui::PopTextWrapPos();
-					// 	ImGui::Image((void*)m_RoughnessInput.TextureMap->GetRendererID(), ImVec2(384, 384));
-					// 	ImGui::EndTooltip();
-					// }
-					// if (ImGui::IsItemClicked())
-					// {
-					// 	std::string filename = Application::Get().OpenFile("");
-					// 	if (filename != "")
-					// 		m_RoughnessInput.TextureMap = Texture2D::Create(filename);
-					// }
+					if (m_RoughnessInput.TextureMap)
+					{
+						ImGui::BeginTooltip();
+						ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+						ImGui::TextUnformatted(m_RoughnessInput.TextureMap->label().c_str());
+						ImGui::PopTextWrapPos();
+						ImGui::Image(reinterpret_cast<ImTextureID>(&m_RoughnessInput.TextureMap), ImVec2(384, 384));
+						ImGui::EndTooltip();
+					}
+					if (ImGui::IsItemClicked())
+					{
+						// std::string filename = Application::Get().OpenFile("");
+						// if (filename != "")
+						// 	m_RoughnessInput.TextureMap = Texture2D::Create(filename);
+					}
 				}
 				ImGui::SameLine();
 				ImGui::Checkbox("Use##RoughnessMap", &m_RoughnessInput.UseTexture);
@@ -565,26 +649,28 @@ namespace ReloadEditor
 				ImGui::SliderFloat("Value##RoughnessInput", &m_RoughnessInput.Value, 0.0f, 1.0f);
 			}
 		}
-
+	
 		ImGui::Separator();
 
 		if (ImGui::TreeNode("Shaders"))
 		{
-			// auto& shaders = Shader::s_AllShaders;
-			// for (auto& shader : shaders)
-			// {
-			// 	if (ImGui::TreeNode(shader->GetName().c_str()))
-			// 	{
-			// 		std::string buttonName = "Reload##" + shader->GetName();
-			// 		if (ImGui::Button(buttonName.c_str()))
-			// 			shader->Reload();
-			// 		ImGui::TreePop();
-			// 	}
-			// }
+			Containers::Array<Shaders::Phong> shaders;
+			for (auto& shader : shaders)
+			{
+				if (ImGui::TreeNode(shader.label().c_str()))
+				{
+					std::string buttonName = "Reload##" + shader.label();
+					if (ImGui::Button(buttonName.c_str()))
+					{
+						// shader->Reload();
+					}
+					ImGui::TreePop();
+				}
+			}
 			ImGui::TreePop();
 		}
 
-		ImGui::End();
+		ImGui::End(); // Environment
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 		ImGui::Begin("Viewport");
@@ -603,8 +689,8 @@ namespace ReloadEditor
 		minBound.y += viewportOffset.y;
 
 		ImVec2 maxBound = {minBound.x + windowSize.x, minBound.y + windowSize.y};
-		m_ViewportBounds[0] = {minBound.x, minBound.y};
-		m_ViewportBounds[1] = {maxBound.x, maxBound.y};
+		_viewportBounds[0] = {minBound.x, minBound.y};
+		_viewportBounds[1] = {maxBound.x, maxBound.y};
 		m_AllowViewportCameraEvents = ImGui::IsMouseHoveringRect(minBound, maxBound);
 
 		// Gizmos
@@ -667,7 +753,7 @@ namespace ReloadEditor
 
 		// m_SceneHierarchyPanel->OnImGuiRender();
 
-		ImGui::End();
+		ImGui::End(); // Dockspace
 	}
 
 	void EditorLayer::OnEvent(InputEvent &e)
@@ -716,12 +802,12 @@ namespace ReloadEditor
 
 	void EditorLayer::OnViewportEvent(ViewportEvent &event)
 	{
-		_scene->OnViewportEvent(event);
+		m_ActiveScene->OnViewportEvent(event);
 	}
 
 	void EditorLayer::OnMousePress(MouseEvent &event)
 	{
-		_scene->OnMousePress(event);
+		m_ActiveScene->OnMousePress(event);
 		Vector2i pos = event.position();
 		if (event.button() == MouseEvent::Button::Left && event.modifiers() & MouseEvent::Modifier::Alt
 			// && !ImGuizmo::IsOver()
@@ -777,17 +863,17 @@ namespace ReloadEditor
 
 	void EditorLayer::OnMouseRelease(MouseEvent &event)
 	{
-		_scene->OnMouseRelease(event);
+		m_ActiveScene->OnMouseRelease(event);
 	}
 
 	void EditorLayer::OnMouseMove(MouseMoveEvent &event)
 	{
-		_scene->OnMouseMove(event);
+		m_ActiveScene->OnMouseMove(event);
 	}
 
 	void EditorLayer::OnMouseScroll(MouseScrollEvent &event)
 	{
-		_scene->OnMouseScroll(event);
+		m_ActiveScene->OnMouseScroll(event);
 	}
 
 	void EditorLayer::OnKeyPress(KeyEvent &event)
@@ -823,7 +909,15 @@ namespace ReloadEditor
 			break;
 		}
 
-		_scene->OnKeyPress(event);
+		m_ActiveScene->OnKeyPress(event);
+	}
+
+	void EditorLayer::SetThumbnail(Magnum::Containers::Optional<Magnum::GL::Texture2D> texture)
+	{
+		ImGui::Image(&texture
+						 ? reinterpret_cast<ImTextureID>(&texture)
+						 : reinterpret_cast<ImTextureID>(&_checkerboardTex),
+					 TEX_THUMB_SIZE);
 	}
 
 } // namespace ReloadEditor

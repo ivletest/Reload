@@ -11,14 +11,8 @@ using namespace Math::Literals;
 
 namespace Reload
 {
-    Game::Game(const Arguments &arguments)
-#ifdef SDL2_APPLICATION
-        : Platform::Sdl2Application{arguments, NoCreate}
-#elif EMSCRIPTEN_APPLICATION
-        : Platform::EmpscriptenApplication{arguments, NoCreate}
-#elif ANDROID_APPLICATION 
-        : Platform::AndroidApplication{arguments, NoCreate}
-#endif
+    Game::Game(const Arguments &arguments) 
+        : Platform::Application{arguments, NoCreate}
     {
         Configuration conf;
         GLConfiguration glConf;
@@ -57,7 +51,7 @@ namespace Reload
         setSwapInterval(1);
         setMinimalLoopPeriod(16);
 
-        _scene.emplace(windowSize(), framebufferSize());
+        // _scene.emplace(windowSize(), framebufferSize());
     }
 
     void Game::drawEvent()
@@ -66,7 +60,7 @@ namespace Reload
         GL::defaultFramebuffer.clearColor(Color3(0.21, 0.23, 0.2));
 
         bool camChanged = false;
-        _scene->OnDrawEvent(camChanged);
+        // _scene->OnDrawEvent(camChanged);
 
         swapBuffers();
 
@@ -78,34 +72,34 @@ namespace Reload
 
         void Game::viewportEvent(ViewportEvent &event)
     { 
-        _scene->OnViewportEvent(event);
+        // _scene->OnViewportEvent(event);
     }
 
     void Game::mousePressEvent(MouseEvent &event)
     { 
-        _scene->OnMousePress(event);
+        // _scene->OnMousePress(event);
     }
 
     void Game::mouseReleaseEvent(MouseEvent &event)
     { 
-        _scene->OnMouseRelease(event);
+        // _scene->OnMouseRelease(event);
     }
 
     void Game::mouseScrollEvent(MouseScrollEvent &event)
     {
-        _scene->OnMouseScroll(event);
+        // _scene->OnMouseScroll(event);
         redraw();
     }
 
     void Game::mouseMoveEvent(MouseMoveEvent &event)
     {
-        _scene->OnMouseMove(event);
+        // _scene->OnMouseMove(event);
         redraw();
     }
 
     void Game::keyPressEvent(KeyEvent &event)
     {
-        _scene->OnKeyPress(event);
+        // _scene->OnKeyPress(event);
         redraw();
     }
 

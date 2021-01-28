@@ -10,6 +10,22 @@
             "options": {
                 "cwd": "${workspaceFolder}/build"
             }
+        },
+        {
+            "label": "cmake-debug",
+            "type": "shell",
+            "command": "cmake -DCMAKE_BUILD_TYPE=Debug ..",
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            }
+        },
+        {
+            "label": "cmake-release",
+            "type": "shell",
+            "command": "cmake -DCMAKE_BUILD_TYPE=Release ..",
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            }
         }
     ]
 }

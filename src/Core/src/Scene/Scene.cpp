@@ -9,7 +9,11 @@ using namespace Math::Literals;
 
 namespace Reload
 {
-    Scene::Scene(const Vector2i windowSize, const Vector2i frameBufferSize)
+    const std::string GLTF_IMPORTER = "TinyGltfImporter";
+
+    Scene::Scene(
+        const Vector2i windowSize,
+        const Vector2i frameBufferSize)
     {
         /* Set up the camera */
         {
@@ -17,7 +21,7 @@ namespace Reload
             const Vector3 center{};
             const Vector3 up = Vector3::yAxis();
             Deg fov = 45.0_degf;
-            
+
             _cameraRig.emplace(_scene, eye, center, up, fov, windowSize, frameBufferSize);
         }
 
@@ -35,40 +39,43 @@ namespace Reload
 
         PluginManager::Manager<Trade::AbstractImporter> manager;
 
-        Containers::Pointer<Trade::AbstractImporter> importer = manager.loadAndInstantiate("TinyGltfImporter");
-        importer->setFlags(Trade::ImporterFlag::Verbose);
+        if (!(manager.load(GLTF_IMPORTER) & PluginManager::LoadState::Loaded))
+        {
+            Utility::Error{}
+                << "The requested plugin" << GLTF_IMPORTER << "cannot be loaded.";
+        }
+
+        Containers::Pointer<Trade::AbstractImporter> gltfImporter =
+            manager.instantiate(GLTF_IMPORTER);
+
+        CORRADE_INTERNAL_ASSERT(gltfImporter);
 
         auto modelsDir = Corrade::Utility::Directory::join(
             {Corrade::Utility::Directory::current(), "Assets", "models", "scenes", "rooftop"});
 
-        Debug{} << modelsDir;
-
-        if (!importer)
-        {
-            std::exit(1);
-        }
-
         /* Load file */
-        if (!importer->openFile(Corrade::Utility::Directory::join(modelsDir, "rooftop-degenerate.glb")))
+        if (!gltfImporter->openFile(Corrade::Utility::Directory::join(
+                modelsDir,
+                "rooftop-degenerate.glb")))
         {
             std::exit(4);
         }
 
         /* Load all textures. Textures that fail to load will be NullOpt. */
-        _textures = Containers::Array<Containers::Optional<GL::Texture2D>>{importer->textureCount()};
-        for (UnsignedInt i = 0; i != importer->textureCount(); ++i)
+        _textures = Containers::Array<Containers::Optional<GL::Texture2D>>{gltfImporter->textureCount()};
+        for (UnsignedInt i = 0; i != gltfImporter->textureCount(); ++i)
         {
-            Debug{} << "Importing texture" << i << importer->textureName(i);
-            Containers::Optional<Trade::TextureData> textureData = importer->texture(i);
+            Debug{} << "Importing texture" << i << gltfImporter->textureName(i);
+            Containers::Optional<Trade::TextureData> textureData = gltfImporter->texture(i);
             if (!textureData || textureData->type() != Trade::TextureData::Type::Texture2D)
             {
                 Warning{} << "Cannot load texture properties, skipping";
                 continue;
             }
 
-            Debug{} << "Importing image" << textureData->image() << importer->image2DName(textureData->image());
+            Debug{} << "Importing image" << textureData->image() << gltfImporter->image2DName(textureData->image());
 
-            Containers::Optional<Trade::ImageData2D> imageData = importer->image2D(textureData->image());
+            Containers::Optional<Trade::ImageData2D> imageData = gltfImporter->image2D(textureData->image());
             GL::TextureFormat format;
             if (imageData && imageData->format() == PixelFormat::RGB8Unorm)
             {
@@ -99,12 +106,12 @@ namespace Reload
             /* Load all materials. Materials that fail to load will be NullOpt. The
            data will be stored directly in objects later, so save them only
            temporarily. */
-            Containers::Array<Containers::Optional<Trade::PhongMaterialData>> materials{importer->materialCount()};
-            for (UnsignedInt i = 0; i != importer->materialCount(); ++i)
+            Containers::Array<Containers::Optional<Trade::PhongMaterialData>> materials{gltfImporter->materialCount()};
+            for (UnsignedInt i = 0; i != gltfImporter->materialCount(); ++i)
             {
-                Debug{} << "Importing material" << i << importer->materialName(i);
+                Debug{} << "Importing material" << i << gltfImporter->materialName(i);
 
-                Containers::Optional<Trade::MaterialData> materialData = importer->material(i);
+                Containers::Optional<Trade::MaterialData> materialData = gltfImporter->material(i);
                 if (!materialData || !(materialData->types() & Trade::MaterialType::Phong))
                 {
                     Warning{} << "Cannot load material, skipping";
@@ -115,12 +122,12 @@ namespace Reload
             }
 
             /* Load all meshes. Meshes that fail to load will be NullOpt. */
-            _meshes = Containers::Array<Containers::Optional<GL::Mesh>>{importer->meshCount()};
-            for (UnsignedInt i = 0; i != importer->meshCount(); ++i)
+            _meshes = Containers::Array<Containers::Optional<GL::Mesh>>{gltfImporter->meshCount()};
+            for (UnsignedInt i = 0; i != gltfImporter->meshCount(); ++i)
             {
-                Debug{} << "Importing mesh" << i << importer->meshName(i);
+                Debug{} << "Importing mesh" << i << gltfImporter->meshName(i);
 
-                Containers::Optional<Trade::MeshData> meshData = importer->mesh(i);
+                Containers::Optional<Trade::MeshData> meshData = gltfImporter->mesh(i);
                 if (!meshData || !meshData->hasAttribute(Trade::MeshAttribute::Normal) || meshData->primitive() != MeshPrimitive::Triangles)
                 {
                     Warning{} << "Cannot load the mesh, skipping";
@@ -132,11 +139,11 @@ namespace Reload
             }
 
             /* Load the scene */
-            if (importer->defaultScene() != -1)
+            if (gltfImporter->defaultScene() != -1)
             {
-                Debug{} << "Adding default scene" << importer->sceneName(importer->defaultScene());
+                Debug{} << "Adding default scene" << gltfImporter->sceneName(gltfImporter->defaultScene());
 
-                Containers::Optional<Trade::SceneData> sceneData = importer->scene(importer->defaultScene());
+                Containers::Optional<Trade::SceneData> sceneData = gltfImporter->scene(gltfImporter->defaultScene());
                 if (!sceneData)
                 {
                     Error{} << "Cannot load scene, exiting";
@@ -146,7 +153,7 @@ namespace Reload
                 /* Recursively add all children */
                 for (UnsignedInt objectId : sceneData->children3D())
                 {
-                    addObject(*importer, materials, _scene, objectId);
+                    addObject(*gltfImporter, materials, _scene, objectId);
                 }
 
                 /* The format has no scene support, display just the first loaded mesh with

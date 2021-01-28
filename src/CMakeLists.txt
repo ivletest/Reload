@@ -34,4 +34,6 @@ add_library(${CORE_PROJECT_NAME} OBJECT)
 include(${CMAKE_CURRENT_LIST_DIR}/Core/CMakeLists.txt)
 
 # Setup applications
-include(${CMAKE_CURRENT_LIST_DIR}/Apps/CMakeLists.txt)
+include(${CMAKE_CURRENT_LIST_DIR}/Editor/CMakeLists.txt)
+if(RELOAD_EDITOR)
+endif()

@@ -34,7 +34,7 @@ namespace ReloadEditor
 
 	private:
 		float m_Time = 0.0f;
-		Magnum::ImGuiIntegration::Context _imgui {Magnum::NoCreate};
+		Magnum::ImGuiIntegration::Context _imgui { Magnum::NoCreate };
 		Magnum::Vector2i _windowSize;
 		Magnum::Vector2i _frameBufferSize;
 		Magnum::Vector2 _dpiScaling;
