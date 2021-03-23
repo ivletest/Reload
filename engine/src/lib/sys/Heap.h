@@ -18,4 +18,4 @@ private:
     static void             Free16(void *ptr);
 };
 
-#endif //RELOAD_C_HEAP_H
+#endif //RELOAD_HEAP_H

@@ -8,6 +8,6 @@ cd $DIR/../
 
 rm -rf build
 tools/premake5 cmake
+tools/premake5 gmake2 -j4
 cd build
-cmake .
-make "$*"
+make

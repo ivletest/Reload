@@ -73,7 +73,6 @@ private:
     VkDevice                    m_device;
     uint32_t                    m_queueIndex;
     VkQueue                     m_queue;
-    VmaAllocator                m_allocator;
     VkDebugReportCallbackEXT    m_debugCallbackHandle;
     VkDebugUtilsMessengerEXT    m_debugUtilsCallbackHandle;
     VkSurfaceKHR                m_surface;
@@ -88,6 +87,8 @@ private:
     List<const char *>			m_deviceExtensions;
     List<const char *>			m_validationLayers;
 
+    // AMD Vulkan Memory Allocator
+    VmaAllocator                m_allocator;
     VmaAllocation				m_msaaVmaAllocation;
     VmaAllocationInfo			m_msaaAllocation;
 

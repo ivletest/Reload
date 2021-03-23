@@ -28,7 +28,7 @@
 #include <vulkan/vulkan.h>
 
 #include "sys/Defs.h"
-#include "sys/Structs.h"
+#include "Structs.h"
 #include "sys/Paths.h"
 
 

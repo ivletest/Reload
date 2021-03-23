@@ -32,7 +32,9 @@ typedef struct VulkanConfig {
     Version         programVersion;
     const char *    engineName;
     Version         engineVersion;
-    unsigned int    selectedGpu;
+    int             selectedGpu;
+    unsigned int    deviceLocalMemoryMB;
+    unsigned int    hostVisibleMemoryMB;
 } VulkanConfig;
 
 typedef struct Vertex {

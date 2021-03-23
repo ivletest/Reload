@@ -11,7 +11,7 @@
     <target id="df4d45cf-7440-4fbf-8497-06f7401a8609" name="Reload Clean Build" defaultType="TOOL">
       <configuration id="5a1927f9-4833-4f9c-b489-c0c7eeb26f9c" name="Reload Clean Build">
         <build type="TOOL">
-          <tool actionId="Tool_External Tools_premake cmake linux" />
+          <tool actionId="Tool_External Tools_premake clean cmake linux" />
         </build>
       </configuration>
     </target>

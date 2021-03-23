@@ -121,12 +121,12 @@ void Config::LoadSystemConfig() {
         const cJSON *versionMajor = cJSON_GetObjectItem(version, "major");
         const cJSON *versionMinor = cJSON_GetObjectItem(version, "minor");
         const cJSON *versionPatch = cJSON_GetObjectItem(version, "patch");
-        const cJSON *enableValidationLayers = cJSON_GetObjectItem(vkConfigJson,
-                                                                  "enableValidationLayers");
-        const cJSON *enableDebugLayer = cJSON_GetObjectItem(vkConfigJson,
-                                                            "enableDebugLayer");
+        const cJSON *enableValidationLayers = cJSON_GetObjectItem(vkConfigJson, "enableValidationLayers");
+        const cJSON *enableDebugLayer = cJSON_GetObjectItem(vkConfigJson, "enableDebugLayer");
         const cJSON *MSAALevels = cJSON_GetObjectItem(vkConfigJson, "MSAALevels");
         const cJSON *selectedGpu = cJSON_GetObjectItem(vkConfigJson, "selectedGpu");
+        const cJSON *deviceLocalMemoryMB = cJSON_GetObjectItem(vkConfigJson, "DeviceLocalMemoryMB");
+        const cJSON *hostVisibleMemoryMB = cJSON_GetObjectItem(vkConfigJson, "hostVisibleMemoryMB");
 
         if (!cJSON_IsNumber(versionMajor)) {
             printf("Vulkan configuration error. Version major field is not number");
@@ -156,6 +156,14 @@ void Config::LoadSystemConfig() {
             printf("Vulkan configuration error. Selected GPU field is not number");
             goto free_mem_and_return;
         }
+        if (!cJSON_IsNumber(deviceLocalMemoryMB)) {
+            printf("Vulkan configuration error. Device local memory field is not number");
+            goto free_mem_and_return;
+        }
+        if (!cJSON_IsNumber(hostVisibleMemoryMB)) {
+            printf("Vulkan configuration error. Host visible memory field is not number");
+            goto free_mem_and_return;
+        }
 
         m_vkConfig.apiVersion.major = (unsigned int) versionMajor->valueint;
         m_vkConfig.apiVersion.minor = (unsigned int) versionMinor->valueint;
@@ -167,7 +175,9 @@ void Config::LoadSystemConfig() {
         m_vkConfig.programVersion = m_gameInfo.version;
         m_vkConfig.engineName = m_gameInfo.name;
         m_vkConfig.engineVersion = m_gameInfo.version;
-        m_vkConfig.selectedGpu = (unsigned int) selectedGpu->valueint;
+        m_vkConfig.selectedGpu =  selectedGpu->valueint;
+        m_vkConfig.deviceLocalMemoryMB = (unsigned int)deviceLocalMemoryMB->valueint;
+        m_vkConfig.hostVisibleMemoryMB = (unsigned int)hostVisibleMemoryMB->valueint;
     }
 
     free_mem_and_return:

@@ -53,7 +53,7 @@ and frees up the allocated memory.
 template<typename T>
 inline void DeleteArray(T *list, int size) {
     for (int i = 0; i < size; i++) {
-        ((T *)list)[i].~T();
+        list[i].~T();
     }
     Mem::Free(list);
 }
@@ -155,7 +155,8 @@ inline List<T>::List(int newGranularity) {
 
     list        = nullptr;
     granularity = newGranularity;
-    Clear();
+    size        = 0;
+    count       = 0;
 }
 
 /*

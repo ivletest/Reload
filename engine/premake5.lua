@@ -115,16 +115,16 @@ project "ReloadEngineCore"
 		postbuildcommands { }
 	filter "system:linux"
 		postbuildcommands {
-			"{COPY} ../reload/assets %{cfg.targetdir}",
-			"{COPY} ../reload/core/usr_config.json %{cfg.targetdir}",
+			"{COPY} ../engine/assets %{cfg.targetdir}",
+			"{COPY} ../engine/usr_config.json %{cfg.targetdir}",
 		}
 		filter { "configurations:Debug" }
 			postbuildcommands {
-				"{COPY} ../reload/core/sys_config.debug.json %{cfg.targetdir}",
+				"{COPY} ../engine/sys_config.debug.json %{cfg.targetdir}",
 			}
 		filter { "configurations:Release" }
 			postbuildcommands {
-				"{COPY} ../reload/core/sys_config.json %{cfg.targetdir}",
+				"{COPY} ../engine/sys_config.json %{cfg.targetdir}",
 			}
 	filter "system:macosx"
 		postbuildcommands { }

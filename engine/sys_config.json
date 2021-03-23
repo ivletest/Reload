@@ -4,7 +4,9 @@
     "enableValidationLayers": false,
     "enableDebugLayer": false,
     "MSAALevels": 4,
-    "selectedGpu": 0
+    "selectedGpu": 0,
+    "DeviceLocalMemoryMB": 128,
+    "HostVisibleMemoryMB": 64
   },
 
   "game": {
