@@ -1,0 +1,6 @@
+#ifndef __SYS_PLATFORM_LINUX_H
+#define __SYS_PLATFORM_LINUX_H
+
+
+
+#endif // !__SYS_PLATFORM_LINUX_H

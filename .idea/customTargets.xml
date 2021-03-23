@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CLionExternalBuildManager">
+    <target id="d2d17dbd-29b6-4479-8b87-1b62a12aae10" name="Reload Build" defaultType="TOOL">
+      <configuration id="6ef4c0e7-9d4a-4b6a-847d-7ebbe25767b4" name="Reload Build">
+        <build type="TOOL">
+          <tool actionId="Tool_External Tools_premake cmake linux" />
+        </build>
+      </configuration>
+    </target>
+    <target id="df4d45cf-7440-4fbf-8497-06f7401a8609" name="Reload Clean Build" defaultType="TOOL">
+      <configuration id="5a1927f9-4833-4f9c-b489-c0c7eeb26f9c" name="Reload Clean Build">
+        <build type="TOOL">
+          <tool actionId="Tool_External Tools_premake cmake linux" />
+        </build>
+      </configuration>
+    </target>
+  </component>
+</project>

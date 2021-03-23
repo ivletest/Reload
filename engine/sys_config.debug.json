@@ -1,0 +1,21 @@
+{
+  "vulkan": {
+    "version": { "major": 1, "minor": 1, "patch": 9 },
+    "enableValidationLayers": true,
+    "enableDebugLayer": true,
+    "MSAALevels": 4,
+    "selectedGpu": 0
+  },
+
+  "game": {
+    "name": "Reload",
+    "version": { "major": 0, "minor": 1, "patch": 0 }
+  },
+
+  "window": {
+    "title": "Reload - v0.1.0",
+    "width":  1280,
+    "height": 768,
+    "highDpi": true
+  }
+}
