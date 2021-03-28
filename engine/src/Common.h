@@ -5,11 +5,15 @@
 #include <string.h>
 // #include <math.h>
 // #include <ctype.h>
-#include <stdint.h>
+#include <cstdint>
 #include <stdbool.h>
 #include <limits.h>
 #include <algorithm>
 #include <string>
+#include <cstdio>
+#include <vector>
+#include <array>
+#include <optional>
 
 
 #ifdef __unix__

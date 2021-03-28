@@ -19,6 +19,8 @@
         exit(1);                                                               \
     }
 
+const char * Vk_ErrorToString(VkResult result);
+
 // everything that is needed by the backend needs
 // to be double buffered to allow it to run in
 // parallel on a dual cpu machine

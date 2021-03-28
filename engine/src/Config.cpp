@@ -88,7 +88,8 @@ void Config::LoadSystemConfig() {
         const cJSON *title = cJSON_GetObjectItem(windowConfigJson, "title");
         const cJSON *width = cJSON_GetObjectItem(windowConfigJson, "width");
         const cJSON *height = cJSON_GetObjectItem(windowConfigJson, "height");
-        const cJSON *highDpi = cJSON_GetObjectItem(windowConfigJson, "highDpi");
+        const cJSON *highDpi = cJSON_GetObjectItem(windowConfigJson, "allowHighDpi");
+        const cJSON *fullScreen = cJSON_GetObjectItem(windowConfigJson, "isFullScreen");
 
         if (!cJSON_IsString(title)) {
             printf("Window configuration error. Title field is not a string");
@@ -106,11 +107,16 @@ void Config::LoadSystemConfig() {
             printf("Window configuration error. High DPI field is not boolean");
             goto free_mem_and_return;
         }
+        if (!cJSON_IsBool(fullScreen)) {
+            printf("Window configuration error. Full screen field is not boolean");
+            goto free_mem_and_return;
+        }
 
         m_windowConfig.title = title->valuestring;
         m_windowConfig.width = (unsigned int) width->valueint;
         m_windowConfig.height = (unsigned int) height->valueint;
-        m_windowConfig.highDpi = (bool) cJSON_IsTrue(highDpi);
+        m_windowConfig.allowHighDpi = (bool) cJSON_IsTrue(highDpi);
+        m_windowConfig.isFullScreen = (bool) cJSON_IsTrue(fullScreen);
     }
     //
     // Get vulkan configuration
@@ -125,8 +131,9 @@ void Config::LoadSystemConfig() {
         const cJSON *enableDebugLayer = cJSON_GetObjectItem(vkConfigJson, "enableDebugLayer");
         const cJSON *MSAALevels = cJSON_GetObjectItem(vkConfigJson, "MSAALevels");
         const cJSON *selectedGpu = cJSON_GetObjectItem(vkConfigJson, "selectedGpu");
-        const cJSON *deviceLocalMemoryMB = cJSON_GetObjectItem(vkConfigJson, "DeviceLocalMemoryMB");
-        const cJSON *hostVisibleMemoryMB = cJSON_GetObjectItem(vkConfigJson, "hostVisibleMemoryMB");
+        const cJSON *deviceLocalMemoryMB = cJSON_GetObjectItem(vkConfigJson, "deviceLocalMemoryMB");
+        const cJSON *uploadBufferSizeMB = cJSON_GetObjectItem(vkConfigJson, "uploadBufferSizeMB");
+        const cJSON *swapInterval = cJSON_GetObjectItem(vkConfigJson, "swapInterval");
 
         if (!cJSON_IsNumber(versionMajor)) {
             printf("Vulkan configuration error. Version major field is not number");
@@ -160,8 +167,13 @@ void Config::LoadSystemConfig() {
             printf("Vulkan configuration error. Device local memory field is not number");
             goto free_mem_and_return;
         }
-        if (!cJSON_IsNumber(hostVisibleMemoryMB)) {
-            printf("Vulkan configuration error. Host visible memory field is not number");
+        if (!cJSON_IsNumber(uploadBufferSizeMB)) {
+            printf("Vulkan configuration error. upload buffer size field is not number");
+            goto free_mem_and_return;
+        }
+
+        if (!cJSON_IsNumber(swapInterval)) {
+            printf("Vulkan configuration error. swap interval field is not number");
             goto free_mem_and_return;
         }
 
@@ -177,7 +189,8 @@ void Config::LoadSystemConfig() {
         m_vkConfig.engineVersion = m_gameInfo.version;
         m_vkConfig.selectedGpu =  selectedGpu->valueint;
         m_vkConfig.deviceLocalMemoryMB = (unsigned int)deviceLocalMemoryMB->valueint;
-        m_vkConfig.hostVisibleMemoryMB = (unsigned int)hostVisibleMemoryMB->valueint;
+        m_vkConfig.uploadBufferSizeMB = (unsigned int)uploadBufferSizeMB->valueint;
+        m_vkConfig.swapInterval = swapInterval->valueint;
     }
 
     free_mem_and_return:

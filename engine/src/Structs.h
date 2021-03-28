@@ -20,7 +20,8 @@ typedef struct WindowConfig {
     const char *    title;
     unsigned int    width;
     unsigned int    height;
-    bool            highDpi;
+    bool            allowHighDpi;
+    bool            isFullScreen;
 } WindowConfig;
 
 typedef struct VulkanConfig {
@@ -34,7 +35,8 @@ typedef struct VulkanConfig {
     Version         engineVersion;
     int             selectedGpu;
     unsigned int    deviceLocalMemoryMB;
-    unsigned int    hostVisibleMemoryMB;
+    unsigned int    uploadBufferSizeMB;
+    int             swapInterval;
 } VulkanConfig;
 
 typedef struct Vertex {

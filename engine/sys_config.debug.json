@@ -5,8 +5,9 @@
     "enableDebugLayer": true,
     "MSAALevels": 4,
     "selectedGpu": 0,
-    "DeviceLocalMemoryMB": 128,
-    "HostVisibleMemoryMB": 64
+    "deviceLocalMemoryMB": 128,
+    "uploadBufferSizeMB": 64,
+    "swapInterval": 1
   },
 
   "game": {
@@ -18,6 +19,7 @@
     "title": "Reload - v0.1.0",
     "width":  1280,
     "height": 768,
-    "highDpi": true
+    "allowHighDpi": true,
+    "isFullScreen": false
   }
 }

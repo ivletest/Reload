@@ -88,7 +88,7 @@ public:
     typedef int		cmp_t(const T *, const T * );
     typedef T	    new_t();
 
-                    List(int newGranularity = 16);
+                    List(int newCount = 0, int newGranularity = 16);
                     List(const List &other);
                     ~List();
 
@@ -115,7 +115,7 @@ public:
     void			Condense();											        // Resizes list to exactly the number of elements it contains or frees up memory if empty.
     void			Resize(int newSize);								        // Resizes list to the given number of elements
     void			Resize(int newSize, int newGranularity);			        // resizes list and sets new granularity
-    void			SetCount(int newCount);							            // Set number of elements in list and resize to exactly this number if needed
+    void			SetCount(int newCount);							        // Set number of elements in list and resize to exactly this number if needed
     void			AssureSize(int newSize);							        // Assure list has given number of elements, but leave them uninitialized
     void			AssureSize(int newSize, const T &initValue);	            // Assure list has given number of elements and initialize any new elements
     void			AssureSizeAlloc(int newSize, new_t *allocator);	            // Assure the pointer list has the given number of elements and allocate any new elements.
@@ -133,9 +133,9 @@ public:
     size_t          Allocated() const;                                          // Gets the number of allocated space in the list.
 
 private:
-    int				count;
-    int				size;
-    int				granularity;
+    int 			count;
+    int 			size;
+    int 			granularity;
     T * 		    list;
 };
 
@@ -150,14 +150,20 @@ List's constructor with granularity as parameter. Default granularity is set to
 ================================================================================
 */
 template<typename T>
-inline List<T>::List(int newGranularity) {
+inline List<T>::List(int newCount, int newGranularity) {
+    assert(newCount > 0);
     assert(newGranularity > 0);
 
     list        = nullptr;
     granularity = newGranularity;
     size        = 0;
     count       = 0;
+
+    if (newCount > 0) {
+        SetCount(newCount);
+    }
 }
+
 
 /*
 ================================================================================
