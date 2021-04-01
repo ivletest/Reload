@@ -6,6 +6,5 @@
 class File {
 public:
     static char * ReadAsString(const char *path);
-
 };
 #endif // !__SYS_FILE_H

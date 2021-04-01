@@ -13,15 +13,9 @@
     #define MAIN_CONFIG "sys_config.debug.json"
 #endif
 
-Config *Config::s_instance = nullptr;
-
-Config * Config::Get() {
-    if (s_instance == nullptr) {
-        s_instance = new Config();
-    }
-
-    return s_instance;
-}
+GameInfo        gameInfo;
+WindowConfig    windowConfig;
+VulkanConfig    vkConfig;
 
 /*
 ================================================================================
@@ -32,7 +26,7 @@ Loads the default configuration from the `sys_config.json` located in the src
 directory.
 ================================================================================
 */
-void Config::LoadSystemConfig() {
+void ConfigManager::LoadSystemConfig() {
     char *buffer = File::ReadAsString(MAIN_CONFIG);
     cJSON *config = cJSON_Parse(buffer);
 
@@ -74,10 +68,10 @@ void Config::LoadSystemConfig() {
             goto free_mem_and_return;
         }
 
-        m_gameInfo.name = name->valuestring;
-        m_gameInfo.version.major = (unsigned int) versionMajor->valueint;
-        m_gameInfo.version.minor = (unsigned int) versionMinor->valueint;
-        m_gameInfo.version.patch = (unsigned int) versionPatch->valueint;
+        gameInfo.name = name->valuestring;
+        gameInfo.version.major = (unsigned int) versionMajor->valueint;
+        gameInfo.version.minor = (unsigned int) versionMinor->valueint;
+        gameInfo.version.patch = (unsigned int) versionPatch->valueint;
     }
 
     //
@@ -112,11 +106,11 @@ void Config::LoadSystemConfig() {
             goto free_mem_and_return;
         }
 
-        m_windowConfig.title = title->valuestring;
-        m_windowConfig.width = (unsigned int) width->valueint;
-        m_windowConfig.height = (unsigned int) height->valueint;
-        m_windowConfig.allowHighDpi = (bool) cJSON_IsTrue(highDpi);
-        m_windowConfig.isFullScreen = (bool) cJSON_IsTrue(fullScreen);
+        windowConfig.title = title->valuestring;
+        windowConfig.width = (unsigned int) width->valueint;
+        windowConfig.height = (unsigned int) height->valueint;
+        windowConfig.allowHighDpi = (bool) cJSON_IsTrue(highDpi);
+        windowConfig.isFullScreen = (bool) cJSON_IsTrue(fullScreen);
     }
     //
     // Get vulkan configuration
@@ -177,20 +171,20 @@ void Config::LoadSystemConfig() {
             goto free_mem_and_return;
         }
 
-        m_vkConfig.apiVersion.major = (unsigned int) versionMajor->valueint;
-        m_vkConfig.apiVersion.minor = (unsigned int) versionMinor->valueint;
-        m_vkConfig.apiVersion.patch = (unsigned int) versionPatch->valueint;
-        m_vkConfig.enableValidationLayers = (bool) cJSON_IsTrue(enableValidationLayers);
-        m_vkConfig.enableDebugLayer = (bool) cJSON_IsTrue(enableDebugLayer);
-        m_vkConfig.MSAALevels = MSAALevels->valueint;
-        m_vkConfig.programName = m_gameInfo.name;
-        m_vkConfig.programVersion = m_gameInfo.version;
-        m_vkConfig.engineName = m_gameInfo.name;
-        m_vkConfig.engineVersion = m_gameInfo.version;
-        m_vkConfig.selectedGpu =  selectedGpu->valueint;
-        m_vkConfig.deviceLocalMemoryMB = (unsigned int)deviceLocalMemoryMB->valueint;
-        m_vkConfig.uploadBufferSizeMB = (unsigned int)uploadBufferSizeMB->valueint;
-        m_vkConfig.swapInterval = swapInterval->valueint;
+        vkConfig.apiVersion.major = (unsigned int) versionMajor->valueint;
+        vkConfig.apiVersion.minor = (unsigned int) versionMinor->valueint;
+        vkConfig.apiVersion.patch = (unsigned int) versionPatch->valueint;
+        vkConfig.enableValidationLayers = (bool) cJSON_IsTrue(enableValidationLayers);
+        vkConfig.enableDebugLayer = (bool) cJSON_IsTrue(enableDebugLayer);
+        vkConfig.MSAALevels = MSAALevels->valueint;
+        vkConfig.programName = gameInfo.name;
+        vkConfig.programVersion = gameInfo.version;
+        vkConfig.engineName = gameInfo.name;
+        vkConfig.engineVersion = gameInfo.version;
+        vkConfig.selectedGpu =  selectedGpu->valueint;
+        vkConfig.deviceLocalMemoryMB = (unsigned int)deviceLocalMemoryMB->valueint;
+        vkConfig.uploadBufferSizeMB = (unsigned int)uploadBufferSizeMB->valueint;
+        vkConfig.swapInterval = swapInterval->valueint;
     }
 
     free_mem_and_return:

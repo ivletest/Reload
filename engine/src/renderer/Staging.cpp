@@ -52,11 +52,11 @@ void Staging::Init() {
     for (auto & m_buffer : m_buffers) {
         m_buffer.offset = 0;
 
-        VK_CHECK(vkCreateBuffer(vkContext.device, &bufferCreateInfo, nullptr, &m_buffer.buffer))
+        VK_CHECK(vkCreateBuffer(vkContext.logicalDevice, &bufferCreateInfo, nullptr, &m_buffer.buffer))
     }
 
     VkMemoryRequirements memoryRequirements;
-    vkGetBufferMemoryRequirements(vkContext.device, m_buffers[0].buffer, &memoryRequirements);
+    vkGetBufferMemoryRequirements(vkContext.logicalDevice, m_buffers[0].buffer, &memoryRequirements);
 
     const VkDeviceSize alignMod = memoryRequirements.size % memoryRequirements.alignment;
     const VkDeviceSize alignedSize = (alignMod == 0)
@@ -68,19 +68,19 @@ void Staging::Init() {
     memoryAllocateInfo.allocationSize = alignedSize * NUM_FRAME_DATA;
     memoryAllocateInfo.memoryTypeIndex = FindMemoryTypeIndex(memoryRequirements.memoryTypeBits, VK_MEMORY_USAGE_CPU_TO_GPU);
 
-    VK_CHECK(vkAllocateMemory(vkContext.device, &memoryAllocateInfo, nullptr, &m_memory))
+    VK_CHECK(vkAllocateMemory(vkContext.logicalDevice, &memoryAllocateInfo, nullptr, &m_memory))
 
     for (uint32_t i = 0; i < NUM_FRAME_DATA; ++i ) {
-        VK_CHECK(vkBindBufferMemory(vkContext.device, m_buffers[i].buffer, m_memory, i * alignedSize))
+        VK_CHECK(vkBindBufferMemory(vkContext.logicalDevice, m_buffers[i].buffer, m_memory, i * alignedSize))
     }
 
-    VK_CHECK(vkMapMemory(vkContext.device, m_memory, 0, alignedSize * NUM_FRAME_DATA, 0, reinterpret_cast< void ** >( &m_mappedData )))
+    VK_CHECK(vkMapMemory(vkContext.logicalDevice, m_memory, 0, alignedSize * NUM_FRAME_DATA, 0, reinterpret_cast< void ** >( &m_mappedData )))
 
     VkCommandPoolCreateInfo commandPoolCreateInfo = {};
     commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     commandPoolCreateInfo.queueFamilyIndex = vkContext.queueFamilies.graphicsFamily.value();
-    VK_CHECK(vkCreateCommandPool(vkContext.device, &commandPoolCreateInfo, nullptr, &m_commandPool))
+    VK_CHECK(vkCreateCommandPool(vkContext.logicalDevice, &commandPoolCreateInfo, nullptr, &m_commandPool))
 
     VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
     commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -94,8 +94,8 @@ void Staging::Init() {
     commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
     for (uint32_t i = 0; i < NUM_FRAME_DATA; ++i ) {
-        VK_CHECK(vkAllocateCommandBuffers(vkContext.device, &commandBufferAllocateInfo, &m_buffers[i].commandBuffer))
-        VK_CHECK(vkCreateFence(vkContext.device, &fenceCreateInfo, nullptr, &m_buffers[i].fence))
+        VK_CHECK(vkAllocateCommandBuffers(vkContext.logicalDevice, &commandBufferAllocateInfo, &m_buffers[i].commandBuffer))
+        VK_CHECK(vkCreateFence(vkContext.logicalDevice, &fenceCreateInfo, nullptr, &m_buffers[i].fence))
         VK_CHECK(vkBeginCommandBuffer(m_buffers[ i ].commandBuffer, &commandBufferBeginInfo))
 
         m_buffers[i].data = (char *)m_mappedData + (i * alignedSize);
@@ -111,14 +111,14 @@ Shuts down the staging manager.
 ================================================================================
 */
 void Staging::Shutdown() {
-    vkUnmapMemory(vkContext.device, m_memory);
+    vkUnmapMemory(vkContext.logicalDevice, m_memory);
     m_memory = VK_NULL_HANDLE;
     m_mappedData = nullptr;
 
     for (auto & buffer : m_buffers) {
-        vkDestroyFence(vkContext.device, buffer.fence, nullptr);
-        vkDestroyBuffer(vkContext.device, buffer.buffer, nullptr);
-        vkFreeCommandBuffers(vkContext.device, m_commandPool, 1, &buffer.commandBuffer);
+        vkDestroyFence(vkContext.logicalDevice, buffer.fence, nullptr);
+        vkDestroyBuffer(vkContext.logicalDevice, buffer.buffer, nullptr);
+        vkFreeCommandBuffers(vkContext.logicalDevice, m_commandPool, 1, &buffer.commandBuffer);
     }
     memset(m_buffers, 0, sizeof(m_buffers));
 
@@ -201,7 +201,7 @@ void Staging::Flush() {
     memoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
     memoryRange.memory = m_memory;
     memoryRange.size = VK_WHOLE_SIZE;
-    vkFlushMappedMemoryRanges(vkContext.device, 1, &memoryRange);
+    vkFlushMappedMemoryRanges(vkContext.logicalDevice, 1, &memoryRange);
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -220,8 +220,8 @@ void Staging::Wait(StagingBuffer &stage) {
         return;
     }
 
-    VK_CHECK(vkWaitForFences(vkContext.device, 1, &stage.fence, VK_TRUE, UINT64_MAX))
-    VK_CHECK(vkResetFences(vkContext.device, 1, &stage.fence))
+    VK_CHECK(vkWaitForFences(vkContext.logicalDevice, 1, &stage.fence, VK_TRUE, UINT64_MAX))
+    VK_CHECK(vkResetFences(vkContext.logicalDevice, 1, &stage.fence))
 
     stage.offset = 0;
     stage.submitted = false;

@@ -34,9 +34,8 @@ Initializes all systems for the game.
 ================================================================================
 */
 void Game::Init() {
-    Config::Get()->LoadSystemConfig();
-    InitSDL();
 
+    InitSDL();
     m_renderSystem.Init();
 }
 

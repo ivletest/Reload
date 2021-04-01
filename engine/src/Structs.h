@@ -25,32 +25,18 @@ typedef struct WindowConfig {
 } WindowConfig;
 
 typedef struct VulkanConfig {
-    Version         apiVersion;
-    bool            enableValidationLayers;
-    bool            enableDebugLayer;
     int             MSAALevels;
-    const char *    programName;
-    Version         programVersion;
-    const char *    engineName;
-    Version         engineVersion;
     int             selectedGpu;
+    int             swapInterval;
     unsigned int    deviceLocalMemoryMB;
     unsigned int    uploadBufferSizeMB;
-    int             swapInterval;
+    Version         apiVersion;
+    Version         programVersion;
+    Version         engineVersion;
+    bool            enableValidationLayers;
+    bool            enableDebugLayer;
+    const char *    programName;
+    const char *    engineName;
 } VulkanConfig;
-
-typedef struct Vertex {
-    float position[2];
-    float uv[2];
-    uint8_t col[4];
-} Vertex;
-
-#ifdef DEBUG
-
-typedef struct {
-    float deltaTime;
-} DebugLayerInfo;
-
-#endif
 
 #endif // !__SYS_STRUCTS_H

@@ -4,11 +4,12 @@
 #include <SDL2/SDL_vulkan.h>
 
 #include "../Config.h"
+#include "../Windowing/Window.h"
 #include "Staging.h"
 #include "Image.h"
 
-VulkanConfig        vkConfig;
-WindowConfig        windowConfig;
+using ExtList = std::vector<const char *>;
+
 VkContext           vkContext;
 
 /*
@@ -32,17 +33,9 @@ Static properties
 */
 static VkDebugReportCallbackEXT s_debugReportCallback = VK_NULL_HANDLE;
 
-static const char * g_debugExtensions[1] = {
-        VK_EXT_DEBUG_REPORT_EXTENSION_NAME
-};
-
-static const char * g_deviceExtensions[1] = {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME
-};
-
-static const char * g_validationLayers[1] = {
-        VK_LAYER_KHRONOS_VALIDATION_NAME
-};
+static ExtList g_debugExtensions({VK_EXT_DEBUG_REPORT_EXTENSION_NAME });
+static ExtList g_deviceExtensions({VK_KHR_SWAPCHAIN_EXTENSION_NAME });
+static ExtList g_validationLayers({VK_LAYER_KHRONOS_VALIDATION_NAME });
 
 /*
 ================================================================================
@@ -101,7 +94,7 @@ static void CheckValidationLayers() {
 
     bool layerFound = false;
     for (auto enabledValidationLayer : g_validationLayers) {
-        for (int j = 0; j < (int)layerCount; j++) {
+        for (size_t j = 0; j < layerCount; j++) {
             VkLayerProperties layerProps = instanceLayers[j];
             if (!strcmp(enabledValidationLayer, layerProps.layerName)) {
                 layerFound = true;
@@ -207,7 +200,7 @@ Creates a pipline cache.
 static void CreatePipelineCache() {
     VkPipelineCacheCreateInfo pipelineCacheCreateInfo = {};
     pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
-    VK_CHECK(vkCreatePipelineCache(vkContext.device, &pipelineCacheCreateInfo, nullptr, &vkContext.pipelineCache))
+    VK_CHECK(vkCreatePipelineCache(vkContext.logicalDevice, &pipelineCacheCreateInfo, nullptr, &vkContext.pipelineCache))
 }
 
 /*
@@ -361,7 +354,7 @@ DESCRIPTION:
 Checks whether the gpu supports all the extensions required to run the program.
 ================================================================================
 */
-static bool CheckPhysicalDeviceExtensionSupport(GPUInfo & gpu, std::vector<const char *> & requiredExt) {
+static bool CheckPhysicalDeviceExtensionSupport(GPUInfo & gpu, ExtList & requiredExt) {
     size_t extensionPropsCount = gpu.extensionProps.size();
     size_t required = requiredExt.size();
     size_t available = 0;
@@ -387,24 +380,8 @@ The render backend's constructor.
 ================================================================================
 */
 RenderBackend::RenderBackend() {
-    m_window = nullptr;
-    m_windowWidth = m_windowHeight = 0;
-    m_physicalDevice = VK_NULL_HANDLE;
-    m_instance = VK_NULL_HANDLE;
-    m_device = VK_NULL_HANDLE;
-
-    m_debugCallbackHandle = VK_NULL_HANDLE;
-    m_debugUtilsCallbackHandle = VK_NULL_HANDLE;
-
-    m_queueIndex = 0;
-    m_queue = VK_NULL_HANDLE;
-    m_allocator = VK_NULL_HANDLE;
-    m_msaaSamples = VK_SAMPLE_COUNT_32_BIT;
-    m_presentMode = {};
-
-    m_surface = VK_NULL_HANDLE;
-
     ClearContext();
+    Clear();
 }
 
 /*
@@ -429,7 +406,7 @@ Clears the vulkan context and resets all the values.
 */
 void RenderBackend::ClearContext() {
     vkContext.gpu = GPUInfo();
-    vkContext.device = VK_NULL_HANDLE;
+    vkContext.logicalDevice = VK_NULL_HANDLE;
     vkContext.graphicsQueue = VK_NULL_HANDLE;
     vkContext.presentQueue = VK_NULL_HANDLE;
     vkContext.depthFormat = VK_FORMAT_UNDEFINED;
@@ -448,43 +425,39 @@ Clears and resets all the values.
 ================================================================================
 */
 void RenderBackend::Clear() {
-//    m_counter = 0;
-//    m_currentFrameData = 0;
+    m_counter = 0;
+    m_currentFrameData = 0;
 
     m_instance = VK_NULL_HANDLE;
-    m_physicalDevice = VK_NULL_HANDLE;
 
     s_debugReportCallback = VK_NULL_HANDLE;
     m_instanceExtensions.clear();
     m_deviceExtensions.clear();
     m_validationLayers.clear();
 
-    m_surface = VK_NULL_HANDLE;
-    m_presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+    m_fullscreen = 0;
+    m_swapChain = VK_NULL_HANDLE;
+    m_swapChainFormat = VK_FORMAT_UNDEFINED;
+    m_currentSwapIndex = 0;
+    m_msaaImage = VK_NULL_HANDLE;
+    m_msaaImageView = VK_NULL_HANDLE;
+    m_commandPool = VK_NULL_HANDLE;
 
-//    m_fullscreen = 0;
-//    m_swapChain = VK_NULL_HANDLE;
-//    m_swapChainFormat = VK_FORMAT_UNDEFINED;
-//    m_currentSwapIndex = 0;
-//    m_msaaImage = VK_NULL_HANDLE;
-//    m_msaaImageView = VK_NULL_HANDLE;
-//    m_commandPool = VK_NULL_HANDLE;
-//
-//    m_swapChainImages.Zero();
-//    m_swapChainViews.Zero();
-//    m_frameBuffers.Zero();
-//
-//    m_commandBuffers.Zero();
-//    m_commandBufferFences.Zero();
-//    m_commandBufferRecorded.Zero();
-//    m_acquireSemaphores.Zero();
-//    m_renderCompleteSemaphores.Zero();
+    std::fill(m_swapChainImages.begin(), m_swapChainImages.end(), nullptr);
+    std::fill(m_swapChainViews.begin(), m_swapChainViews.end(), nullptr);
+    std::fill(m_frameBuffers.begin(), m_frameBuffers.end(), nullptr);
+    std::fill(m_commandBuffers.begin(), m_commandBuffers.end(), nullptr);
+    std::fill(m_commandBufferFences.begin(), m_commandBufferFences.end(), nullptr);
+    std::fill(m_commandBufferRecorded.begin(), m_commandBufferRecorded.end(), false);
+    std::fill(m_acquireSemaphores.begin(), m_acquireSemaphores.end(), nullptr);
+    std::fill(m_renderCompleteSemaphores.begin(), m_renderCompleteSemaphores.end(), nullptr);
+    std::fill(m_queryIndex.begin(), m_queryIndex.end(), 0);
 
-//    m_queryIndex.Zero();
-//    for ( int i = 0; i < NUM_FRAME_DATA; ++i ) {
-//        m_queryResults[ i ].Zero();
-//    }
-//    m_queryPools.Zero();
+    for (auto & queryResult : m_queryResults) {
+        std::fill(queryResult.begin(), queryResult.end(), 0);
+    }
+
+    std::fill(m_queryPools.begin(), m_queryPools.end(), nullptr);
 }
 
 /*
@@ -496,10 +469,7 @@ Initializes the render backend.
 ================================================================================
 */
 void RenderBackend::Init() {
-    vkConfig      = Config::Get()->VulkanConfiguration();
-    windowConfig  = Config::Get()->WindowConfiguration();
-
-    CreateWindow();
+    WindowManager::CreateWindow();
     CreateInstance();
     CreateSurface();
     SelectPhysicalDevice();
@@ -526,37 +496,35 @@ Shuts down the render backend.
 ================================================================================
 */
 void RenderBackend::Shutdown() {
+
+    DestroyFrameBuffers();
+
+    vkDestroyPipelineCache(vkContext.logicalDevice, vkContext.pipelineCache, nullptr);
+    vkDestroyRenderPass(vkContext.logicalDevice, vkContext.renderPass, nullptr);
+
+    DestroyRenderTargets();
     DestroySwapChain();
 
-    vkFreeCommandBuffers(vkContext.device, m_commandPool, NUM_FRAME_DATA, m_commandBuffers);
+    staging.Shutdown();
 
-    for (auto & m_commandBufferFence : m_commandBufferFences) {
-        vkDestroyFence(vkContext.device, m_commandBufferFence, nullptr);
-    }
-
-    vkDestroyCommandPool(vkContext.device, m_commandPool, nullptr);
-
-    for (auto & m_queryPool : m_queryPools) {
-        vkDestroyQueryPool(vkContext.device, m_queryPool, nullptr );
-    }
-
-    for (int i = 0; i < (int)NUM_FRAME_DATA; ++i ) {
-        vkDestroySemaphore(vkContext.device, m_acquireSemaphores[i], nullptr);
-        vkDestroySemaphore(vkContext.device, m_renderCompleteSemaphores[i], nullptr);
-    }
+    vmaDestroyAllocator(m_allocator);
+    DestroyCommandBuffer();
+    vkDestroyCommandPool(vkContext.logicalDevice, m_commandPool, nullptr);
+    DestroyQueryPool();
+    DestroySemaphores();
 
     if (vkConfig.enableDebugLayer) {
         DestroyDebugReportCallback(m_instance);
     }
 
-    vkDestroyDevice(vkContext.device, nullptr);
+    vkDestroyDevice(vkContext.logicalDevice, nullptr);
     vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
     vkDestroyInstance(m_instance, nullptr);
 
     ClearContext();
     Clear();
 
-    SDL_DestroyWindow(m_window);
+    WindowManager::DestroyWindow();
 }
 
 /*
@@ -569,39 +537,6 @@ Restarts the render backend.
 */
 void RenderBackend::Restart() {
 
-}
-
-/*
-================================================================================
-RenderBackend::CreateWindow
-
-DESCRIPTION:
-Configures and creates the SDL Window.
-================================================================================
-*/
-void RenderBackend::CreateWindow() {
-    uint32_t windowFlags = SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN;
-
-    if (windowConfig.allowHighDpi) {
-        windowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
-        SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "0");
-    }
-    if (windowConfig.isFullScreen) {
-        windowFlags |= SDL_WINDOW_FULLSCREEN;
-    }
-
-    m_window = SDL_CreateWindow(
-            windowConfig.title,
-            SDL_WINDOWPOS_CENTERED,
-            SDL_WINDOWPOS_CENTERED,
-            (int)windowConfig.width,
-            (int)windowConfig.height,
-            windowFlags);
-
-    if (!m_window) {
-        SDL_LogCritical(LOG_VIDEO, "Failed to open window: %s\n", SDL_GetError());
-        exit(1);
-    }
 }
 
 /*
@@ -621,17 +556,17 @@ void RenderBackend::CreateInstance() {
                                          vkConfig.engineVersion.minor,
                                          vkConfig.engineVersion.patch);
 
-    uint32_t apiVer = VK_MAKE_VERSION(vkConfig.apiVersion.major,
-                                      vkConfig.apiVersion.minor,
-                                      vkConfig.apiVersion.patch);
+    uint32_t vulkanApiVersion;
+    VK_CHECK(vkEnumerateInstanceVersion(&vulkanApiVersion))
 
     VkApplicationInfo appInfo  = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    appInfo.pNext = VK_NULL_HANDLE;
     appInfo.pApplicationName = vkConfig.programName;
     appInfo.applicationVersion = appVer;
     appInfo.pEngineName = vkConfig.engineName;
     appInfo.engineVersion = engineVer;
-    appInfo.apiVersion = apiVer;
+    appInfo.apiVersion = vulkanApiVersion;
 
     VkInstanceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -642,9 +577,9 @@ void RenderBackend::CreateInstance() {
     m_validationLayers.clear();
 
     uint32_t extensionCount;
-    SDL_Vulkan_GetInstanceExtensions(m_window, &extensionCount, nullptr);
+    SDL_Vulkan_GetInstanceExtensions(window, &extensionCount, nullptr);
     m_instanceExtensions.resize(extensionCount);
-    SDL_Vulkan_GetInstanceExtensions(m_window, &extensionCount, m_instanceExtensions.data());
+    SDL_Vulkan_GetInstanceExtensions(window, &extensionCount, m_instanceExtensions.data());
 
     for (auto & deviceExtension : g_deviceExtensions) {
         m_deviceExtensions.push_back(deviceExtension);
@@ -683,7 +618,7 @@ Configures and creates The Vulkan surface to be drawn to.
 ================================================================================
 */
 void RenderBackend::CreateSurface() {
-    if (!SDL_Vulkan_CreateSurface(m_window, m_instance, &m_surface)) {
+    if (!SDL_Vulkan_CreateSurface(window, m_instance, &m_surface)) {
         SDL_LogCritical(LOG_VIDEO, "Cannot create Vulkan window surface");
         exit(1);
     }
@@ -770,7 +705,6 @@ void RenderBackend::SelectPhysicalDevice() {
         exit(1);
     }
 
-    m_physicalDevice = bestGpu.device;
     vkContext.gpu = bestGpu;
 }
 
@@ -823,10 +757,10 @@ void RenderBackend::CreateLogicalDeviceAndQueues() {
         deviceInfo.enabledLayerCount = 0;
     }
 
-    VK_CHECK(vkCreateDevice(m_physicalDevice, &deviceInfo, nullptr, &vkContext.device))
+    VK_CHECK(vkCreateDevice(vkContext.gpu.device, &deviceInfo, nullptr, &vkContext.logicalDevice))
 
-    vkGetDeviceQueue(vkContext.device, graphicsFamilyIdx, 0, &vkContext.graphicsQueue);
-    vkGetDeviceQueue(vkContext.device, presentFamilyIdx , 0, &vkContext.presentQueue);
+    vkGetDeviceQueue(vkContext.logicalDevice, graphicsFamilyIdx, 0, &vkContext.graphicsQueue);
+    vkGetDeviceQueue(vkContext.logicalDevice, presentFamilyIdx , 0, &vkContext.presentQueue);
 }
 
 /*
@@ -850,8 +784,23 @@ void RenderBackend::CreateSemaphores() {
     semaphoreCreateInfo.flags  = 0;
 
     for (uint32_t i = 0; i < NUM_FRAME_DATA; ++i ) {
-        VK_CHECK(vkCreateSemaphore(vkContext.device, &semaphoreCreateInfo, nullptr, &m_acquireSemaphores[i]))
-        VK_CHECK(vkCreateSemaphore(vkContext.device, &semaphoreCreateInfo, nullptr, &m_renderCompleteSemaphores[i]))
+        VK_CHECK(vkCreateSemaphore(vkContext.logicalDevice, &semaphoreCreateInfo, nullptr, &m_acquireSemaphores[i]))
+        VK_CHECK(vkCreateSemaphore(vkContext.logicalDevice, &semaphoreCreateInfo, nullptr, &m_renderCompleteSemaphores[i]))
+    }
+}
+
+/*
+================================================================================
+RenderBackend::DestroySemaphores
+
+DESCRIPTION:
+Destroys semaphores for image acquisition and rendering completion.
+================================================================================
+*/
+void RenderBackend::DestroySemaphores() {
+    for (uint32_t i = 0; i < NUM_FRAME_DATA; ++i ) {
+        vkDestroySemaphore(vkContext.logicalDevice, m_acquireSemaphores[i], nullptr);
+        vkDestroySemaphore(vkContext.logicalDevice, m_renderCompleteSemaphores[i], nullptr);
     }
 }
 
@@ -869,8 +818,22 @@ void RenderBackend::CreateQueryPool() {
     createInfo.queryType    = VK_QUERY_TYPE_TIMESTAMP;
     createInfo.queryCount   = NUM_TIMESTAMP_QUERIES;
 
-    for (auto & m_queryPool : m_queryPools) {
-        VK_CHECK(vkCreateQueryPool(vkContext.device, &createInfo, nullptr, &m_queryPool))
+    for (auto & queryPool : m_queryPools) {
+        VK_CHECK(vkCreateQueryPool(vkContext.logicalDevice, &createInfo, nullptr, &queryPool))
+    }
+}
+
+/*
+================================================================================
+RenderBackend::DestroyQueryPool
+
+DESCRIPTION:
+Destroys Query Pool.
+================================================================================
+*/
+void RenderBackend::DestroyQueryPool() {
+    for (auto & queryPool : m_queryPools) {
+        vkDestroyQueryPool(vkContext.logicalDevice, queryPool, nullptr);
     }
 }
 
@@ -879,16 +842,16 @@ void RenderBackend::CreateQueryPool() {
 RenderBackend::CreateCommandPool
 
 DESCRIPTION:
-Create command pool.
+Creates the command pool.
 ================================================================================
 */
 void RenderBackend::CreateCommandPool() {
     VkCommandPoolCreateInfo createInfo = {};
-    createInfo.sType             = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    createInfo.flags             = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-    createInfo.queueFamilyIndex  = vkContext.queueFamilies.graphicsFamily.value();
+    createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    createInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    createInfo.queueFamilyIndex = vkContext.queueFamilies.graphicsFamily.value();
 
-    VK_CHECK(vkCreateCommandPool(vkContext.device, &createInfo, nullptr, &m_commandPool))
+    VK_CHECK(vkCreateCommandPool(vkContext.logicalDevice, &createInfo, nullptr, &m_commandPool))
 }
 
 /*
@@ -896,23 +859,39 @@ void RenderBackend::CreateCommandPool() {
 RenderBackend::CreateCommandBuffer
 
 DESCRIPTION:
-Create command buffer.
+Creates the command buffer.
 ================================================================================
 */
 void RenderBackend::CreateCommandBuffer() {
     VkCommandBufferAllocateInfo cbAllocateInfo = {};
-    cbAllocateInfo.sType                = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    cbAllocateInfo.level                = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    cbAllocateInfo.commandPool          = m_commandPool;
-    cbAllocateInfo.commandBufferCount   = NUM_FRAME_DATA;
+    cbAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    cbAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    cbAllocateInfo.commandPool = m_commandPool;
+    cbAllocateInfo.commandBufferCount = NUM_FRAME_DATA;
 
-    VK_CHECK(vkAllocateCommandBuffers(vkContext.device, &cbAllocateInfo, m_commandBuffers))
+    VK_CHECK(vkAllocateCommandBuffers(vkContext.logicalDevice, &cbAllocateInfo, m_commandBuffers.data()))
 
     VkFenceCreateInfo fenceCreateInfo = {};
     fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 
+    for (auto & cbFence : m_commandBufferFences) {
+        VK_CHECK(vkCreateFence(vkContext.logicalDevice, &fenceCreateInfo, nullptr, &cbFence))
+    }
+}
+
+/*
+================================================================================
+RenderBackend::DestroyCommandBuffer
+
+DESCRIPTION:
+Destroys the command buffer.
+================================================================================
+*/
+void RenderBackend::DestroyCommandBuffer() {
+    vkFreeCommandBuffers(vkContext.logicalDevice, m_commandPool, NUM_FRAME_DATA, m_commandBuffers.data());
+
     for (auto & m_commandBufferFence : m_commandBufferFences) {
-        VK_CHECK(vkCreateFence(vkContext.device, &fenceCreateInfo, nullptr, &m_commandBufferFence))
+        vkDestroyFence(vkContext.logicalDevice, m_commandBufferFence, nullptr);
     }
 }
 
@@ -927,23 +906,11 @@ Creates the Vulkan memory allocator.
 void RenderBackend::CreateMemoryAllocator() {
     VmaAllocatorCreateInfo createInfo = {};
     createInfo.instance = m_instance;
-    createInfo.physicalDevice = m_physicalDevice;
-    createInfo.device = vkContext.device;
+    createInfo.physicalDevice = vkContext.gpu.device;
+    createInfo.device = vkContext.logicalDevice;
     createInfo.preferredLargeHeapBlockSize = vkConfig.deviceLocalMemoryMB * 1024 * 1024;
 
     vmaCreateAllocator(&createInfo, &m_allocator);
-}
-
-/*
-================================================================================
-RenderBackend::DestroyMemoryAllocator
-
-DESCRIPTION:
-Destroys the Vulkan memory allocator.
-================================================================================
-*/
-void RenderBackend::DestroyMemoryAllocator() {
-    vmaDestroyAllocator(m_allocator);
 }
 
 /*
@@ -960,7 +927,7 @@ VkExtent2D RenderBackend::ChooseSurfaceExtent(VkSurfaceCapabilitiesKHR & caps) {
         return caps.currentExtent;
     } else {
         int width, height;
-        SDL_GetWindowSize(m_window, &width, &height);
+        SDL_GetWindowSize(window, &width, &height);
 
         VkExtent2D extent;
         extent.width = std::max(
@@ -989,17 +956,17 @@ void RenderBackend::CreateSwapChain() {
     VkExtent2D extent = ChooseSurfaceExtent(gpu.surfaceCaps);
 
     VkSwapchainCreateInfoKHR info = {};
-    info.sType              = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    info.surface            = m_surface;
-    info.minImageCount      = NUM_FRAME_DATA > gpu.surfaceCaps.maxImageCount
-                              ? NUM_FRAME_DATA
-                              : gpu.surfaceCaps.maxImageCount;
-    info.imageFormat        = surfaceFormat.format;
-    info.imageColorSpace    = surfaceFormat.colorSpace;
-    info.imageExtent        = extent;
-    info.imageArrayLayers   = 1; // Unless developing a stereoscopic 3D application, this should always be 1.
-    info.imageUsage         = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
-                            | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    info.surface = m_surface;
+    info.minImageCount = NUM_FRAME_DATA > gpu.surfaceCaps.maxImageCount
+                       ? NUM_FRAME_DATA
+                       : gpu.surfaceCaps.maxImageCount;
+    info.imageFormat = surfaceFormat.format;
+    info.imageColorSpace = surfaceFormat.colorSpace;
+    info.imageExtent = extent;
+    info.imageArrayLayers = 1; // Unless developing a stereoscopic 3D application, this should always be 1.
+    info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
+                    | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 
     uint32_t graphicsFamilyIdx = vkContext.queueFamilies.graphicsFamily.value();
     uint32_t presentFamilyIdx = vkContext.queueFamilies.presentFamily.value();
@@ -1014,13 +981,13 @@ void RenderBackend::CreateSwapChain() {
         info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
     }
 
-    info.preTransform   = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+    info.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
     info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-    info.presentMode    = presentMode;
-    info.clipped        = VK_TRUE;
-    info.oldSwapchain   = VK_NULL_HANDLE;
+    info.presentMode = presentMode;
+    info.clipped = VK_TRUE;
+    info.oldSwapchain = VK_NULL_HANDLE;
 
-    VK_CHECK(vkCreateSwapchainKHR(vkContext.device, &info, nullptr, &m_swapChain))
+    VK_CHECK(vkCreateSwapchainKHR(vkContext.logicalDevice, &info, nullptr, &m_swapChain))
 
     m_swapChainFormat = surfaceFormat.format;
     m_presentMode = presentMode;
@@ -1028,10 +995,10 @@ void RenderBackend::CreateSwapChain() {
     m_fullscreen = windowConfig.isFullScreen;
 
     uint32_t numImages = 0;
-    VK_CHECK(vkGetSwapchainImagesKHR(vkContext.device, m_swapChain, &numImages, nullptr))
+    VK_CHECK(vkGetSwapchainImagesKHR(vkContext.logicalDevice, m_swapChain, &numImages, nullptr))
     VK_VALIDATE(numImages > 0, "vkGetSwapchainImagesKHR returned a zero image count.")
 
-    VK_CHECK(vkGetSwapchainImagesKHR(vkContext.device, m_swapChain, &numImages, m_swapChainImages))
+    VK_CHECK(vkGetSwapchainImagesKHR(vkContext.logicalDevice, m_swapChain, &numImages, m_swapChainImages.data()))
 
     for (uint32_t i = 0; i < NUM_FRAME_DATA; ++i ) {
         VkImageViewCreateInfo imageViewCreateInfo = {};
@@ -1050,7 +1017,7 @@ void RenderBackend::CreateSwapChain() {
         imageViewCreateInfo.subresourceRange.layerCount = 1;
         imageViewCreateInfo.flags = 0;
 
-        VK_CHECK(vkCreateImageView(vkContext.device, &imageViewCreateInfo, nullptr, &m_swapChainViews[i]))
+        VK_CHECK(vkCreateImageView(vkContext.logicalDevice, &imageViewCreateInfo, nullptr, &m_swapChainViews[i]))
     }
 }
 
@@ -1063,11 +1030,11 @@ Destroys the swap chain.
 ================================================================================
 */
 void RenderBackend::DestroySwapChain() {
-    for (auto &swapchainView : m_swapChainViews) {
-        vkDestroyImageView(vkContext.device, swapchainView, nullptr);
+    for (auto & swapchainView : m_swapChainViews) {
+        vkDestroyImageView(vkContext.logicalDevice, swapchainView, nullptr);
     }
 
-    vkDestroySwapchainKHR(vkContext.device, m_swapChain, nullptr);
+    vkDestroySwapchainKHR(vkContext.logicalDevice, m_swapChain, nullptr);
 }
 
 
@@ -1083,7 +1050,7 @@ void RenderBackend::CreateRenderTargets() {
     // Determine samples before creating depth
     VkImageFormatProperties fmtProps = {};
     vkGetPhysicalDeviceImageFormatProperties(
-            m_physicalDevice,
+            vkContext.gpu.device,
             m_swapChainFormat,
             VK_IMAGE_TYPE_2D,
             VK_IMAGE_TILING_OPTIMAL,
@@ -1110,7 +1077,7 @@ void RenderBackend::CreateRenderTargets() {
                 VK_FORMAT_D24_UNORM_S8_UINT
         };
         vkContext.depthFormat = ChooseSupportedFormat(
-                m_physicalDevice,
+                vkContext.gpu.device,
                 formats,
                 3,
                 VK_IMAGE_TILING_OPTIMAL,
@@ -1118,7 +1085,7 @@ void RenderBackend::CreateRenderTargets() {
     }
 
     int windowWidth, windowHeight;
-    SDL_GetWindowSize(m_window, &windowWidth, &windowHeight);
+    SDL_GetWindowSize(window, &windowWidth, &windowHeight);
 
     ImageOptions depthOptions;
     depthOptions.format = vkContext.depthFormat;
@@ -1127,6 +1094,7 @@ void RenderBackend::CreateRenderTargets() {
     depthOptions.mipLevels = 1;
     depthOptions.samples = vkContext.sampleCount;
 
+// TODO: Implement depth buffer scratch image
 //    globalImages->ScratchImage( "_viewDepth", depthOptions );
 
     if (vkContext.sampleCount > VK_SAMPLE_COUNT_1_BIT ) {
@@ -1149,7 +1117,7 @@ void RenderBackend::CreateRenderTargets() {
                                     | VK_IMAGE_USAGE_STORAGE_BIT;
         createInfo.initialLayout    = VK_IMAGE_LAYOUT_UNDEFINED;
 
-        VK_CHECK(vkCreateImage(vkContext.device, &createInfo, nullptr, &m_msaaImage))
+        VK_CHECK(vkCreateImage(vkContext.logicalDevice, &createInfo, nullptr, &m_msaaImage))
 
         VmaAllocationCreateInfo vmaCreateInfo = {};
         vmaCreateInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
@@ -1173,7 +1141,7 @@ void RenderBackend::CreateRenderTargets() {
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 1;
 
-        VK_CHECK(vkCreateImageView(vkContext.device, &viewInfo, nullptr, &m_msaaImageView))
+        VK_CHECK(vkCreateImageView(vkContext.logicalDevice, &viewInfo, nullptr, &m_msaaImageView))
     }
 }
 
@@ -1186,7 +1154,12 @@ Destroys the render targets.
 ================================================================================
 */
 void RenderBackend::DestroyRenderTargets() {
-
+    vkDestroyImageView(vkContext.logicalDevice, m_msaaImageView, nullptr);
+    vmaDestroyImage(m_allocator, m_msaaImage, m_msaaVmaAllocation);
+    m_msaaAllocation = VmaAllocationInfo();
+    m_msaaVmaAllocation = nullptr;
+    m_msaaImage = VK_NULL_HANDLE;
+    m_msaaImageView = VK_NULL_HANDLE;
 }
 
 /*
@@ -1198,7 +1171,71 @@ Creates a render pass.
 ================================================================================
 */
 void RenderBackend::CreateRenderPass() {
+    VkAttachmentDescription attachments[3];
+    memset(attachments, 0, sizeof(attachments));
 
+    const bool resolve = vkContext.sampleCount > VK_SAMPLE_COUNT_1_BIT;
+
+    VkAttachmentDescription & colorAttachment = attachments[0];
+    colorAttachment.format = m_swapChainFormat;
+    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+    VkAttachmentDescription & depthAttachment = attachments[1];
+    depthAttachment.format = vkContext.depthFormat;
+    depthAttachment.samples = vkContext.sampleCount;
+    depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+    VkAttachmentDescription & resolveAttachment = attachments[2];
+    resolveAttachment.format = m_swapChainFormat;
+    resolveAttachment.samples = vkContext.sampleCount;
+    resolveAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    resolveAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    resolveAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    resolveAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    resolveAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    resolveAttachment.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+    VkAttachmentReference colorRef = {};
+    colorRef.attachment = resolve ? 2 : 0;
+    colorRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkAttachmentReference depthRef = {};
+    depthRef.attachment = 1;
+    depthRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+    VkAttachmentReference resolveRef = {};
+    resolveRef.attachment = 0;
+    resolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkSubpassDescription subpass = {};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &colorRef;
+    subpass.pDepthStencilAttachment = &depthRef;
+    if (resolve) {
+        subpass.pResolveAttachments = &resolveRef;
+    }
+
+    VkRenderPassCreateInfo renderPassCreateInfo = {};
+    renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    renderPassCreateInfo.attachmentCount = resolve ? 3 : 2;
+    renderPassCreateInfo.pAttachments = attachments;
+    renderPassCreateInfo.subpassCount = 1;
+    renderPassCreateInfo.pSubpasses = &subpass;
+    renderPassCreateInfo.dependencyCount = 0;
+
+    VK_CHECK(vkCreateRenderPass(vkContext.logicalDevice, &renderPassCreateInfo, nullptr, &vkContext.renderPass))
 }
 
 /*
@@ -1210,7 +1247,43 @@ Creates frame buffers.
 ================================================================================
 */
 void RenderBackend::CreateFrameBuffers() {
+    std::vector<VkImageView> attachments(1);
 
+    const bool resolve = vkContext.sampleCount > VK_SAMPLE_COUNT_1_BIT;
+
+
+    if (resolve) {
+        attachments.push_back(m_msaaImageView);
+    }
+
+
+// TODO: Implement depth buffer scratch image
+//    // depth attachment is the same
+//    idImage * depthImg = globalImages->GetImage( "_viewDepth" );
+//    if (depthImg == nullptr ) {
+//        idLib::FatalError( "CreateFrameBuffers: No _viewDepth image." );
+//    } else {
+//        attachments[ 1 ] = depthImg->GetView();
+//    }
+
+
+    VkFramebufferCreateInfo frameBufferCreateInfo = {};
+    frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    frameBufferCreateInfo.renderPass = vkContext.renderPass;
+    frameBufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+    frameBufferCreateInfo.pAttachments = attachments.data();
+    frameBufferCreateInfo.width = m_swapChainExtent.width;
+    frameBufferCreateInfo.height = m_swapChainExtent.height;
+    frameBufferCreateInfo.layers = 1;
+
+    for (uint32_t i = 0; i < NUM_FRAME_DATA; ++i ) {
+        attachments[0] = m_swapChainViews[i];
+        VK_CHECK(vkCreateFramebuffer(
+                vkContext.logicalDevice,
+                &frameBufferCreateInfo,
+                nullptr,
+                &m_frameBuffers[i]))
+    }
 }
 
 /*
@@ -1222,26 +1295,81 @@ Destroys frame buffers.
 ================================================================================
 */
 void RenderBackend::DestroyFrameBuffers() {
+    for (auto & frameBuffer : m_frameBuffers) {
+        vkDestroyFramebuffer(vkContext.logicalDevice, frameBuffer, nullptr);
+    }
+}
 
+/*
+================================================================================
+RenderBackend::Clear
+
+DESCRIPTION:
+Clears the viewport/screen with the specified color.
+================================================================================
+*/
+void RenderBackend::ClearViewport(
+        bool isColor,
+        bool isDepth,
+        bool isStencil,
+        uint32_t stencilValue,
+        float r,
+        float g,
+        float b,
+        float a) {
+
+    uint32_t numAttachments = 0;
+    VkClearAttachment attachments[2];
+    memset(attachments, 0, sizeof(attachments));
+
+    if (isColor) {
+        VkClearAttachment & attachment = attachments[ numAttachments++ ];
+        attachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        attachment.colorAttachment = 0;
+        VkClearColorValue & color = attachment.clearValue.color;
+        color.float32[0] = r;
+        color.float32[1] = g;
+        color.float32[2] = b;
+        color.float32[3] = a;
+    }
+
+    if (isDepth || isStencil ) {
+        VkClearAttachment & attachment = attachments[ numAttachments++ ];
+        if (isDepth) {
+            attachment.aspectMask |= VK_IMAGE_ASPECT_DEPTH_BIT;
+        }
+        if (isStencil) {
+            attachment.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+        }
+        attachment.clearValue.depthStencil.depth = 1.0f;
+        attachment.clearValue.depthStencil.stencil = stencilValue;
+    }
+
+    VkClearRect clearRect = {};
+    clearRect.baseArrayLayer = 0;
+    clearRect.layerCount = 1;
+    clearRect.rect.extent = m_swapChainExtent;
+
+    vkCmdClearAttachments(m_commandBuffers[m_currentFrameData], numAttachments, attachments, 1, &clearRect );
 }
 
 void RenderBackend::PrepareScene() {
-	int windowWidth, windowHeight;
-	SDL_GetWindowSize(m_window, &windowWidth, &windowHeight);
+    int windowWidth, windowHeight;
+    SDL_GetWindowSize(window, &windowWidth, &windowHeight);
 }
 
 void RenderBackend::PresentScene() {
-	// glClearColor(
-	// 	colorNorm[96], 
-	// 	colorNorm[128], 
-	// 	colorNorm[255], 
-	// 	colorNorm[255]);
-	// glClear(GL_COLOR_BUFFER_BIT);
-	/* IMPORTANT: `nk_sdl_render` modifies some global OpenGL state
+    // glClearColor(
+    // 	colorNorm[96],
+    // 	colorNorm[128],
+    // 	colorNorm[255],
+    // 	colorNorm[255]);
+    // glClear(GL_COLOR_BUFFER_BIT);
+    /* IMPORTANT: `nk_sdl_render` modifies some global OpenGL state
          * with blending, scissor, face culling, depth test and viewport and
          * defaults everything back into a default state.
          * Make sure to either a.) save and restore or b.) reset your own state after
          * rendering the UI. */
-	// nk_sdl_render(NK_ANTI_ALIASING_ON);
+    // nk_sdl_render(NK_ANTI_ALIASING_ON);
     //	SDL_GL_SwapWindow(window);
 }

@@ -34,7 +34,7 @@ struct QueueFamilyIndices {
 
 struct VkContext {
     GPUInfo                 gpu;
-    VkDevice                device;
+    VkDevice                logicalDevice;
     VkQueue					graphicsQueue;
     VkQueue					presentQueue;
     QueueFamilyIndices      queueFamilies;
@@ -61,20 +61,36 @@ public:
     void                        PrepareScene();
     void                        PresentScene();
 
+    void                        ClearViewport(
+                                    bool isColor,
+                                    bool isDepth,
+                                    bool isStencil,
+                                    uint32_t stencilValue,
+                                    float r,
+                                    float g,
+                                    float b,
+                                    float a);                                   // Clears the viewport/screen with the specified color.
+
+
 private:
-    void                        CreateWindow();                                 // Configures and creates the SDL window.
     void				        CreateInstance();                               // Configures and creates the Vulkan instance.
     void                        CreateSurface();                                // Configures and creates The Vulkan surface to be drawn to.
     GPUInfo                     GetPhysicalDeviceInfo(VkPhysicalDevice device); // Gets the physical graphics device information.
     void				        SelectPhysicalDevice();                         // Selects the suitable graphics device.
     void                        CreateLogicalDeviceAndQueues();                 // Creates logical device and queues.
+
     void                        CreateSemaphores();                             // Creates semaphores for image acquisition and rendering completion.
-    void                        CreateQueryPool();                              // Creates Query Pool.
-    void                        CreateCommandPool();                            // Creates Command Pool.
+    void                        DestroySemaphores();                            //Destroys semaphores for image acquisition and rendering completion.
+
+    void                        CreateQueryPool();                              // Creates the query pool.
+    void                        DestroyQueryPool();                             // Destroys the query pool.
+
+    void                        CreateCommandPool();                            // Creates the command pool.
+    void                        DestroyCommandBuffer();                         // Destroys the command pool.
+
     void                        CreateCommandBuffer();                          // Creates Command Buffer.
 
     void                        CreateMemoryAllocator();                        // Creates the Vulkan memory allocator.
-    void                        DestroyMemoryAllocator();                       // Destroys the Vulkan memory allocator.
 
     void				        CreateSwapChain();                              // Creates the swap chain.
     void				        DestroySwapChain();                             // Destroys the swap chain.
@@ -92,9 +108,10 @@ private:
     void                        ClearContext();                                 // Clears the vulkan context and resets its  values.
     void                        Clear();                                        // Clears and resets all the values.
 
-    SDL_Window *                m_window;
+    uint64_t					m_counter;
+    uint32_t					m_currentFrameData;
+
     VkInstance                  m_instance;
-    VkPhysicalDevice            m_physicalDevice;
     VkSampleCountFlagBits       m_msaaSamples;
     VkDevice                    m_device;
     uint32_t                    m_queueIndex;
@@ -128,19 +145,19 @@ private:
     VkImage						m_msaaImage;
     VkImageView					m_msaaImageView;
 
-    VkImage			            m_swapChainImages[NUM_FRAME_DATA];
-    VkImageView		            m_swapChainViews[NUM_FRAME_DATA];
-    VkFramebuffer           	m_frameBuffers[NUM_FRAME_DATA];
+    std::array<VkImage, NUM_FRAME_DATA>			m_swapChainImages;
+    std::array<VkImageView, NUM_FRAME_DATA>		m_swapChainViews;
+    std::array<VkFramebuffer, NUM_FRAME_DATA>   m_frameBuffers;
 
-    VkCommandBuffer         	m_commandBuffers[NUM_FRAME_DATA];
-    VkFence         			m_commandBufferFences[NUM_FRAME_DATA];
-    bool        				m_commandBufferRecorded[NUM_FRAME_DATA];
-    VkSemaphore         		m_acquireSemaphores[NUM_FRAME_DATA];
-    VkSemaphore     	    	m_renderCompleteSemaphores[NUM_FRAME_DATA];
+    std::array<VkCommandBuffer, NUM_FRAME_DATA> m_commandBuffers;
+    std::array<VkFence, NUM_FRAME_DATA>         m_commandBufferFences;
+    std::array<bool, NUM_FRAME_DATA>        	m_commandBufferRecorded;
+    std::array<VkSemaphore, NUM_FRAME_DATA>     m_acquireSemaphores;
+    std::array<VkSemaphore, NUM_FRAME_DATA>     m_renderCompleteSemaphores;
 
-    uint32_t                    m_queryIndex[NUM_FRAME_DATA];
-    uint64_t        	        m_queryResults[NUM_FRAME_DATA][NUM_TIMESTAMP_QUERIES];
-    VkQueryPool         		m_queryPools[NUM_FRAME_DATA];
+    std::array<uint32_t, NUM_FRAME_DATA>        m_queryIndex;
+    std::array<uint64_t, NUM_TIMESTAMP_QUERIES> m_queryResults[NUM_FRAME_DATA];
+    std::array<VkQueryPool, NUM_FRAME_DATA>     m_queryPools;
 };
 
 #endif // __RELOAD_RENDER_BACKEND_H

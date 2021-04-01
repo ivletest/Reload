@@ -1,8 +1,9 @@
-#include <confini-1.h>
-#include "Common.h"
+#include "Config.h"
 #include "Game.h"
 
 int main() {
+    ConfigManager::LoadSystemConfig();
+
     Game game;
 
     game.Init();
