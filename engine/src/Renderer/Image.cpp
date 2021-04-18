@@ -155,10 +155,12 @@ void Image::Alloc() {
     imgInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     imgInfo.flags = (m_imgOpts.texType == TEX_TYPE_CUBIC) ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0;
 
-    VmaAllocationCreateInfo vmaAllocationInfo = {};
-    vmaAllocationInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+    VmaAllocationCreateInfo vmaAllocCreateInfo = {};
+    vmaAllocCreateInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+    // IF depth
+    // vmaAllocCreateInfo.requiredFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-    VK_CHECK(vmaCreateImage(vmaAllocator, &imgInfo, &vmaAllocationInfo, &m_image, &m_allocation, nullptr))
+    VK_CHECK(vmaCreateImage(vmaAllocator, &imgInfo, &vmaAllocCreateInfo, &m_image, &m_allocation, nullptr))
 
     VkImageViewCreateInfo viewInfo = {};
     viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -167,8 +169,9 @@ void Image::Alloc() {
     viewInfo.format = m_internalFormat;
     viewInfo.components = VK_GetComponentMappingFromTextureFormat(m_imgOpts.format, m_imgOpts.colorFormat);
     viewInfo.subresourceRange.aspectMask = (m_imgOpts.format == FMT_DEPTH)
-            ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT
-            : VK_IMAGE_ASPECT_COLOR_BIT;
+//            ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT
+                                           ? VK_IMAGE_ASPECT_DEPTH_BIT
+                                           : VK_IMAGE_ASPECT_COLOR_BIT;
     viewInfo.subresourceRange.levelCount = static_cast<uint32_t>(m_imgOpts.numLevels);
     viewInfo.subresourceRange.layerCount = m_imgOpts.texType == TEX_TYPE_CUBIC ? 6 : 1;
     viewInfo.subresourceRange.baseMipLevel = 0;
