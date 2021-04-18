@@ -1,7 +1,7 @@
 #include "Game.h"
 
-#include "renderer/RenderBackend.h"
-#include "Config.h"
+#include "Renderer/RenderBackend.h"
+#include "ConfigManager.h"
 
 static const uint32_t MS_PER_UPDATE = 16;
 
@@ -112,9 +112,7 @@ NOTE:
 ================================================================================
 */
 void Game::Render() {
-    m_renderSystem.PrepareScene();
-
-    m_renderSystem.PresentScene();
+    m_renderSystem.RenderCommandBuffers();
 }
 /*
 ================================================================================

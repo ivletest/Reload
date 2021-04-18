@@ -1,14 +1,14 @@
 newoption 
 {
-   trigger     = "renderer",
+   trigger     = "Renderer",
    value       = "API",
-   description = "Choose a renderer",
+   description = "Choose a Renderer",
    allowed = 
    {
       { "opengl", "OpenGL (macOS, linux, Windows)" },
       --{ "dx11",  "DirectX 11 (Windows only)" },
       --{ "metal", "Metal (macOS, iOS only)" },
-      { "vulkan", "Vulkan (Windows, linux, iOS, macOS)" }
+      { "lib", "Vulkan (Windows, linux, iOS, macOS)" }
    }
 }
 

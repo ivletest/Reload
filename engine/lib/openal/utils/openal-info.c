@@ -244,7 +244,7 @@ static void printHRTFInfo(ALCdevice *device)
 static void printALInfo(void)
 {
     printf("OpenAL external string: %s\n", alGetString(AL_VENDOR));
-    printf("OpenAL renderer string: %s\n", alGetString(AL_RENDERER));
+    printf("OpenAL Renderer string: %s\n", alGetString(AL_RENDERER));
     printf("OpenAL version string: %s\n", alGetString(AL_VERSION));
     printf("OpenAL extensions:");
     printList(alGetString(AL_EXTENSIONS), ' ');

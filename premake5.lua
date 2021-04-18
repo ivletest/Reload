@@ -4,6 +4,7 @@ require 'scripts/premake-triggers'
 require 'scripts/premake-settings'
 require 'scripts/premake-vscode/vscode'
 require 'scripts/premake-cmake/cmake'
+require 'scripts/premake-helpers'
 
 language 		"C++"
 cppdialect		"C++17"
@@ -52,6 +53,5 @@ workspace(settings.workspace_name)
 
     configurations { "Debug", "Release" }
 
-	include "engine/lib/cJSON/premake5"
-    include "engine/premake5"
+    include "engine/engine_premake5"
  

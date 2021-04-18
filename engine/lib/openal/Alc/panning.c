@@ -649,7 +649,7 @@ static void InitCustomPanning(ALCdevice *device, const AmbDecConf *conf, const A
     ALsizei i, j;
 
     if(conf->FreqBands != 1)
-        ERR("Basic renderer uses the high-frequency matrix as single-band (xover_freq = %.0fhz)\n",
+        ERR("Basic Renderer uses the high-frequency matrix as single-band (xover_freq = %.0fhz)\n",
             conf->XOverFreq);
 
     if((conf->ChanMask&AMBI_PERIPHONIC_MASK))

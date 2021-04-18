@@ -1,0 +1,5 @@
+include('fmt/fmt_premake5')
+include("cJSON/cJSON_premake5")
+include("volk/volk_premake5")
+include("VulkanMemoryAllocator/vma_premake5")
+include("spdlog/spdlog_premake5")

@@ -5,13 +5,33 @@
 #ifndef RELOAD_WINDOW_H
 #define RELOAD_WINDOW_H
 
-#include "../Common.h"
+#include "precompiled.h"
+#include "ReloadLib/Containers/List.h"
 
-extern SDL_Window * window;
+struct RDisplay {
+    bool	isDefault = false;
+    int		width = 0;
+    int		height = 0;
+    int		hz = 0;
+    List<uint32_t> modes;
+};
 
-namespace WindowManager {
+struct RWindow {
+    SDL_Window *    handle;
+    int             width;
+    int             height;
+    bool            isFullScreen;
+    float           pixelAspect;
+};
+
+class WindowManager {
+public:
+    void EnumerateDisplays();
     void CreateWindow();
     void DestroyWindow();
-}
+};
+
+extern WindowManager windowManager;
+extern RWindow window;
 
 #endif //RELOAD_WINDOW_H

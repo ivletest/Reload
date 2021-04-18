@@ -1349,7 +1349,7 @@ will keep buffered to handle the server's real-time
 processing requests. Must be a power of 2.</string>
         </property>
         <property name="title">
-         <string>Buffer Size</string>
+         <string>Buffer SizeInBytes</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>

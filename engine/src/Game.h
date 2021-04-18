@@ -2,7 +2,7 @@
 #define __GAME_H
 
 #include "Common.h"
-#include "renderer/RenderSystem.h"
+#include "Renderer/RenderSystem.h"
 
 class Game {
 public:

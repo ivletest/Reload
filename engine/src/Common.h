@@ -1,35 +1,13 @@
-#ifndef __COMMON_H
-#define __COMMON_H
+#ifndef COMMON_H
+#define COMMON_H
 
-#include <stdio.h>
-#include <string.h>
-// #include <math.h>
-// #include <ctype.h>
-#include <cstdint>
-#include <stdbool.h>
-#include <limits.h>
-#include <algorithm>
-#include <string>
 #include <cstdio>
-#include <vector>
-#include <array>
-#include <optional>
-
-
-#ifdef __unix__
-    #define SEPARATOR   "/"
-    #ifdef __linux__
-        #include <linux/limits.h>
-        #define MAX_PATH PATH_MAX
-    #endif // __linux__
-#else
-    #define SEPARATOR   "\\"
-#endif // __unix__
-
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_events.h>
-#include <SDL2/SDL_log.h>
-#include <vulkan/vulkan.h>
+#include <cstring>
+#include <cstdint>
+#include <cstdbool>
+#include <climits>
+#include <algorithm>
+#include <cassert>
 
 #include "sys/Defs.h"
 #include "Structs.h"
@@ -37,7 +15,7 @@
 
 
 // #ifdef RLD_DEBUG
-//     #include "renderer/debugLayer.h"
+//     #include "Renderer/debugLayer.h"
 // #endif
 
-#endif// !__COMMON_H
+#endif// !COMMON_H

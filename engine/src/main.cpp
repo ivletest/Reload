@@ -1,8 +1,10 @@
-#include "Config.h"
+#include "ConfigManager.h"
 #include "Game.h"
+#include "precompiled.h"
 
-int main() {
+int main(int argc, char* argv[]) {
     ConfigManager::LoadSystemConfig();
+    spdlog::set_pattern("[%H:%M:%S %z] [%n] [%^---%L---%$] [thread %t] %v");
 
     Game game;
 

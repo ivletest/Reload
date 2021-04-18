@@ -1,13 +1,14 @@
-#ifndef __SYS_DEFS_H
-#define __SYS_DEFS_H
+#ifndef SYS_DEFS_H
+#define SYS_DEFS_H
 
-#include <SDL2/SDL.h>
+#include "precompiled.h"
 
 #define SCREEN_WIDTH   1280
 #define SCREEN_HEIGHT  720
 
-#define str(x) #x
 #define xstr(x) str(x)
+
+#define TIME_T int64_t
 
 enum {
     LOG_SYSTEM      = SDL_LOG_CATEGORY_SYSTEM,
@@ -23,7 +24,4 @@ enum {
 #define VERSION(major, minor, patch) \
     ((((uint32_t)(major)) << 22) | (((uint32_t)(minor)) << 12) | ((uint32_t)(patch)))
 
-#define ENGINE_NAME "Reload Engine"
-#define ENGINE_VERSION VERSION(0, 1, 0)
-
-#endif // !__DEFS_H
+#endif // !SYS_DEFS_H

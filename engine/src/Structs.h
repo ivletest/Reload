@@ -18,8 +18,8 @@ typedef struct GameInfo {
 
 typedef struct WindowConfig {
     const char *    title;
-    unsigned int    width;
-    unsigned int    height;
+    int             width;
+    int             height;
     bool            allowHighDpi;
     bool            isFullScreen;
 } WindowConfig;

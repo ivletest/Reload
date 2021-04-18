@@ -1142,7 +1142,7 @@ retry:
 }
 
 /* FF_UPDATE_EVENT handler, updates the picture's texture. It's called on the
- * main thread where the renderer was created.
+ * main thread where the Renderer was created.
  */
 void VideoState::updatePicture(SDL_Window *screen, SDL_Renderer *renderer)
 {
@@ -1644,7 +1644,7 @@ int main(int argc, char *argv[])
         std::cerr<< "SDL: could not set video mode - exiting" <<std::endl;
         return 1;
     }
-    /* Make a renderer to handle the texture image surface and rendering. */
+    /* Make a Renderer to handle the texture image surface and rendering. */
     Uint32 render_flags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
     SDL_Renderer *renderer = SDL_CreateRenderer(screen, -1, render_flags);
     if(renderer)
@@ -1652,8 +1652,8 @@ int main(int argc, char *argv[])
         SDL_RendererInfo rinf{};
         bool ok = false;
 
-        /* Make sure the renderer supports IYUV textures. If not, fallback to a
-         * software renderer. */
+        /* Make sure the Renderer supports IYUV textures. If not, fallback to a
+         * software Renderer. */
         if(SDL_GetRendererInfo(renderer, &rinf) == 0)
         {
             for(Uint32 i = 0;!ok && i < rinf.num_texture_formats;i++)
@@ -1661,7 +1661,7 @@ int main(int argc, char *argv[])
         }
         if(!ok)
         {
-            std::cerr<< "IYUV pixelformat textures not supported on renderer "<<rinf.name <<std::endl;
+            std::cerr<< "IYUV pixelformat textures not supported on Renderer "<<rinf.name <<std::endl;
             SDL_DestroyRenderer(renderer);
             renderer = nullptr;
         }
@@ -1673,7 +1673,7 @@ int main(int argc, char *argv[])
     }
     if(!renderer)
     {
-        std::cerr<< "SDL: could not create renderer - exiting" <<std::endl;
+        std::cerr<< "SDL: could not create Renderer - exiting" <<std::endl;
         return 1;
     }
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
