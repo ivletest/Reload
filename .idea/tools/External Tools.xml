@@ -1,14 +1,14 @@
 <toolSet name="External Tools">
-  <tool name="premake cmake linux" showInMainMenu="false" showInEditor="false" showInProject="false" showInSearchPopup="false" disabled="false" useConsole="true" showConsoleOnStdOut="false" showConsoleOnStdErr="false" synchronizeAfterRun="true">
+  <tool name="premake generate clion project" showInMainMenu="false" showInEditor="false" showInProject="false" showInSearchPopup="false" disabled="false" useConsole="true" showConsoleOnStdOut="false" showConsoleOnStdErr="false" synchronizeAfterRun="true">
     <exec>
-      <option name="COMMAND" value="$USER_HOME$/Source/Repos/Reload/scripts/premake_cmake.sh" />
+      <option name="COMMAND" value="$USER_HOME$/Source/Repos/Reload/scripts/platform/linux/premake_gen_clion.sh" />
       <option name="PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="$USER_HOME$/Source/Repos/Reload/scripts" />
     </exec>
   </tool>
-  <tool name="premake clean cmake linux" showInMainMenu="false" showInEditor="false" showInProject="false" showInSearchPopup="false" disabled="false" useConsole="true" showConsoleOnStdOut="false" showConsoleOnStdErr="false" synchronizeAfterRun="true">
+  <tool name="linux clean" showInMainMenu="false" showInEditor="false" showInProject="false" showInSearchPopup="false" disabled="false" useConsole="true" showConsoleOnStdOut="false" showConsoleOnStdErr="false" synchronizeAfterRun="true">
     <exec>
-      <option name="COMMAND" value="$USER_HOME$/Source/Repos/Reload/scripts/premake_cmake_clean.sh" />
+      <option name="COMMAND" value="$USER_HOME$/Source/Repos/Reload/scripts/platform/linux/clean.sh" />
       <option name="PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="$USER_HOME$/Source/Repos/Reload/scripts" />
     </exec>
