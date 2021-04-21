@@ -8,9 +8,9 @@
 #include "ReloadLib/File.h"
 
 #ifndef RLD_DEBUG
-    #define MAIN_CONFIG "sys_config.json"
+    #define MAIN_CONFIG "config/sys_config.json"
 #else
-    #define MAIN_CONFIG "sys_config.debug.json"
+    #define MAIN_CONFIG "config/sys_config.debug.json"
 #endif
 
 GameInfo        gameInfo;
