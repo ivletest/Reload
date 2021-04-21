@@ -50,7 +50,7 @@ void StagingManager::Init() {
 
     VkBufferCreateInfo bufferCreateInfo = {};
     bufferCreateInfo.sType  = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufferCreateInfo.size   = (VkDeviceSize)m_maxBufferSize;
+    bufferCreateInfo.size   = static_cast<VkDeviceSize>(m_maxBufferSize);
     bufferCreateInfo.usage  = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 
     for (auto & m_buffer : m_buffers) {
@@ -102,7 +102,7 @@ void StagingManager::Init() {
         VK_CHECK(vkCreateFence(vkContext.device, &fenceCreateInfo, nullptr, &m_buffers[i].fence))
         VK_CHECK(vkBeginCommandBuffer(m_buffers[ i ].commandBuffer, &commandBufferBeginInfo))
 
-        m_buffers[i].data = (char *)m_mappedData + (i * alignedSize);
+        m_buffers[i].data = static_cast<char *>(m_mappedData) + (i * alignedSize);
     }
 }
 
@@ -143,13 +143,12 @@ char *StagingManager::Stage(uint32_t size, uint32_t alignment,
                             VkCommandBuffer &commandBuffer, VkBuffer &buffer,
                             VkDeviceSize &bufferOffset) {
     if (size > m_maxBufferSize) {
-        SDL_LogCritical(
-                LOG_RENDER,
-                "Can't allocate %d MB in gpu transfer buffer",
+        spdlog::critical(
+                "Can't allocate {} MB in gpu transfer buffer",
                 (int)(size / 1024 / 1024 ));
     }
 
-    StagingBuffer * stage = &m_buffers[m_currentBuffer];
+    RVkStagingBuffer * stage = &m_buffers[m_currentBuffer];
     uint32_t alignMod = (uint32_t)stage->offset % alignment;
     stage->offset = ((stage->offset % alignment) == 0)
             ? stage->offset
@@ -184,7 +183,7 @@ NOTE:
 ================================================================================
 */
 void StagingManager::Flush() {
-    StagingBuffer & stage = m_buffers[m_currentBuffer];
+    RVkStagingBuffer & stage = m_buffers[m_currentBuffer];
     if (stage.submitted || stage.offset == 0) {
         return;
     }
@@ -219,7 +218,7 @@ void StagingManager::Flush() {
     m_currentBuffer = (m_currentBuffer + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-void StagingManager::Wait(StagingBuffer &stage) {
+void StagingManager::Wait(RVkStagingBuffer &stage) {
     if (!stage.submitted) {
         return;
     }

@@ -1167,25 +1167,33 @@ Creates the render targets.
 */
 void RenderBackend::CreateRenderTargets() {
     // Determine samples before creating depth
-    VkImageFormatProperties fmtProps = {};
-    vkGetPhysicalDeviceImageFormatProperties(
-            vkContext.gpu.device,
-            m_swapchainFormat,
-            VK_IMAGE_TYPE_2D,
-            VK_IMAGE_TILING_OPTIMAL,
-            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-            0,
-            &fmtProps);
+//    VkImageFormatProperties fmtProps = {};
+//    vkGetPhysicalDeviceImageFormatProperties(
+//            vkContext.gpu.device,
+//            m_swapchainFormat,
+//            VK_IMAGE_TYPE_2D,
+//            VK_IMAGE_TILING_OPTIMAL,
+//            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+//            0,
+//            &fmtProps);
+
+    VkSampleCountFlags counts =
+            vkContext.gpu.props.limits.framebufferColorSampleCounts &
+            vkContext.gpu.props.limits.framebufferDepthSampleCounts;
 
     const int samples = vkConfig.MSAALevels;
 
-    if (samples >= 16 && (fmtProps.sampleCounts & VK_SAMPLE_COUNT_16_BIT)) {
+    if (samples >= 64 && (counts & VK_SAMPLE_COUNT_64_BIT)) {
+        vkContext.sampleCount = VK_SAMPLE_COUNT_64_BIT;
+    } else if (samples >= 32 && (counts & VK_SAMPLE_COUNT_32_BIT)) {
+        vkContext.sampleCount = VK_SAMPLE_COUNT_32_BIT;
+    } else if (samples >= 16 && (counts & VK_SAMPLE_COUNT_16_BIT)) {
         vkContext.sampleCount = VK_SAMPLE_COUNT_16_BIT;
-    } else if (samples >= 8 && (fmtProps.sampleCounts & VK_SAMPLE_COUNT_8_BIT)) {
+    } else if (samples >= 8 && (counts & VK_SAMPLE_COUNT_8_BIT)) {
         vkContext.sampleCount = VK_SAMPLE_COUNT_8_BIT;
-    } else if (samples >= 4 && (fmtProps.sampleCounts & VK_SAMPLE_COUNT_4_BIT)) {
+    } else if (samples >= 4 && (counts & VK_SAMPLE_COUNT_4_BIT)) {
         vkContext.sampleCount = VK_SAMPLE_COUNT_4_BIT;
-    } else if (samples >= 2 && (fmtProps.sampleCounts & VK_SAMPLE_COUNT_2_BIT)) {
+    } else if (samples >= 2 && (counts & VK_SAMPLE_COUNT_2_BIT)) {
         vkContext.sampleCount = VK_SAMPLE_COUNT_2_BIT;
     }
 
@@ -1228,7 +1236,8 @@ void RenderBackend::CreateRenderTargets() {
         createInfo.extent.depth     = 1;
         createInfo.mipLevels        = 1;
         createInfo.arrayLayers      = 1;
-        createInfo.samples          = vkContext.sampleCount;
+//        createInfo.samples          = vkContext.sampleCount;
+        createInfo.samples          = VK_SAMPLE_COUNT_1_BIT;
         createInfo.tiling           = VK_IMAGE_TILING_OPTIMAL;
         createInfo.usage            = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
                                     | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT
@@ -1431,6 +1440,7 @@ void RenderBackend::StartFrame() {
             VK_NULL_HANDLE,
             &m_currentSwapIdx));
 
+    Image::EmptyGarbage();
     stagingManager.Flush();
 
     VkQueryPool queryPool = m_queryPools[m_currentFrame];

@@ -57,6 +57,15 @@ struct RVkSwapchain {
     int imageCount = 0;
 };
 
+struct RVkStagingBuffer {
+    bool				submitted = false;
+    VkCommandBuffer		commandBuffer = VK_NULL_HANDLE;
+    VkBuffer			buffer = VK_NULL_HANDLE;
+    VkFence				fence = VK_NULL_HANDLE;
+    VkDeviceSize		offset = 0;
+    char *				data = nullptr;
+};
+
 extern VkInstance       vkInstance;
 extern RVkContext       vkContext;
 

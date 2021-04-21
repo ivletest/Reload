@@ -7,23 +7,7 @@
 
 #include "precompiled.h"
 #include "RenderCommon.h"
-
-struct StagingBuffer {
-    StagingBuffer() :
-            submitted( false ),
-            commandBuffer( VK_NULL_HANDLE ),
-            buffer( VK_NULL_HANDLE ),
-            fence( VK_NULL_HANDLE ),
-            offset( 0 ),
-            data(nullptr) {}
-
-    bool				submitted;
-    VkCommandBuffer		commandBuffer;
-    VkBuffer			buffer;
-    VkFence				fence;
-    VkDeviceSize		offset;
-    char *				data;
-};
+#include "VulkanCommon.h"
 
 class StagingManager {
 public:
@@ -37,7 +21,7 @@ public:
     void			Flush();
 
 private:
-    void			Wait(StagingBuffer & stage);
+    void			Wait(RVkStagingBuffer & stage);
 
 private:
     uint32_t	    m_maxBufferSize;
@@ -46,7 +30,7 @@ private:
     VkDeviceMemory	m_memory;
     VkCommandPool	m_commandPool;
 
-    StagingBuffer   m_buffers[MAX_FRAMES_IN_FLIGHT];
+    RVkStagingBuffer   m_buffers[MAX_FRAMES_IN_FLIGHT];
 };
 
 extern StagingManager stagingManager;

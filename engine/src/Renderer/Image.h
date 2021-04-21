@@ -7,6 +7,7 @@
 
 #include "precompiled.h"
 #include "ReloadLib/RldLib.h"
+#include "ReloadLib/Containers/List.h"
 #include "VulkanCommon.h"
 #include "RenderCommon.h"
 #include "VulkanMemory.h"
@@ -22,6 +23,9 @@ public:
     void            Purge();
     void            SubImageUpload(int mipLevel, int x, int y, int z, int width, int height, const void * pic, int pixelPitch);
     void		    CreateFromSwapImage( VkImage image, VkImageView imageView, VkFormat format, const VkExtent2D & extent );
+    void            CreateSampler();
+
+    static void     EmptyGarbage();
 
     [[nodiscard]]
     bool		    IsCompressed() const { return (m_imgOpts.format == FMT_DXT1 || m_imgOpts.format == FMT_DXT5 ); }
@@ -62,13 +66,13 @@ private:
     VkImageView			m_view;
     VkImageLayout		m_layout;
 
-    static int						    m_garbageIndex;
-    static std::vector<VkImage>		    m_imageGarbage[MAX_FRAMES_IN_FLIGHT];
-    static std::vector<VkImageView>	    m_viewGarbage[MAX_FRAMES_IN_FLIGHT];
-    static std::vector<VkSampler>	    m_samplerGarbage[MAX_FRAMES_IN_FLIGHT];
+    static int				    m_garbageIndex;
+    static List<VkImage>		m_imageGarbage[MAX_FRAMES_IN_FLIGHT];
+    static List<VkImageView>	m_viewGarbage[MAX_FRAMES_IN_FLIGHT];
+    static List<VkSampler>	    m_samplerGarbage[MAX_FRAMES_IN_FLIGHT];
 
-    VmaAllocation		m_allocation;
-    static std::vector<VmaAllocation>   m_allocationGarbage[MAX_FRAMES_IN_FLIGHT];
+    VmaAllocation		        m_allocation;
+    static List<VmaAllocation>  m_allocationGarbage[MAX_FRAMES_IN_FLIGHT];
 
 };
 

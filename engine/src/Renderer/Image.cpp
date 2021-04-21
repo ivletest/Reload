@@ -7,11 +7,11 @@
 #include "VulkanHelpers.h"
 #include "StagingManager.h"
 
-int						    Image::m_garbageIndex = 0;
-std::vector<VmaAllocation>  Image::m_allocationGarbage[MAX_FRAMES_IN_FLIGHT];
-std::vector<VkImage>		Image::m_imageGarbage[MAX_FRAMES_IN_FLIGHT];
-std::vector<VkImageView>	Image::m_viewGarbage[MAX_FRAMES_IN_FLIGHT];
-std::vector<VkSampler>		Image::m_samplerGarbage[MAX_FRAMES_IN_FLIGHT];
+int						Image::m_garbageIndex = 0;
+List<VmaAllocation>     Image::m_allocationGarbage[MAX_FRAMES_IN_FLIGHT];
+List<VkImage>		    Image::m_imageGarbage[MAX_FRAMES_IN_FLIGHT];
+List<VkImageView>	    Image::m_viewGarbage[MAX_FRAMES_IN_FLIGHT];
+List<VkSampler>		    Image::m_samplerGarbage[MAX_FRAMES_IN_FLIGHT];
 
 [[maybe_unused]] VkFormat RVk_GetFormatFromTextureFormat(const TextureFormat format) {
     switch ( format ) {
@@ -148,7 +148,8 @@ void Image::Alloc() {
     imgInfo.extent.depth = 1;
     imgInfo.mipLevels = static_cast<uint32_t>(m_imgOpts.numLevels);
     imgInfo.arrayLayers = (m_imgOpts.texType == TEX_TYPE_CUBIC) ? 6 : 1;
-    imgInfo.samples = m_imgOpts.samples;
+//    imgInfo.samples = m_imgOpts.samples;
+    imgInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imgInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     imgInfo.usage = usageFlags;
     imgInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -181,14 +182,14 @@ void Image::Alloc() {
 
 void Image::Purge() {
     if (m_sampler != VK_NULL_HANDLE) {
-        m_samplerGarbage[m_garbageIndex].push_back(m_sampler);
+        m_samplerGarbage[m_garbageIndex].Add(m_sampler);
         m_sampler = VK_NULL_HANDLE;
     }
 
     if ( m_image != VK_NULL_HANDLE ) {
-        m_allocationGarbage[m_garbageIndex].push_back(m_allocation);
-        m_viewGarbage[m_garbageIndex].push_back(m_view);
-        m_imageGarbage[m_garbageIndex].push_back(m_image);
+        m_allocationGarbage[m_garbageIndex].Add(m_allocation);
+        m_viewGarbage[m_garbageIndex].Add(m_view);
+        m_imageGarbage[m_garbageIndex].Add(m_image);
 
         m_allocation = NULL;
 
@@ -279,4 +280,38 @@ void Image::SubImageUpload(int mipLevel, int x, int y, int z, int width, int hei
 void Image::CreateFromSwapImage(VkImage image, VkImageView imageView,
                                 VkFormat format, const VkExtent2D &extent) {
 
+}
+
+
+void Image::CreateSampler() {
+
+}
+
+void Image::EmptyGarbage() {
+    m_garbageIndex = (m_garbageIndex + 1) % static_cast<int>(MAX_FRAMES_IN_FLIGHT);
+
+    List<VmaAllocation> & allocationsToFree = m_allocationGarbage[m_garbageIndex];
+    List<VkImage> & imagesToFree = m_imageGarbage[m_garbageIndex];
+    List<VkImageView> & viewsToFree = m_viewGarbage[m_garbageIndex];
+    List<VkSampler> & samplersToFree = m_samplerGarbage[m_garbageIndex];
+
+    const int numAllocations = allocationsToFree.Size();
+    for ( int i = 0; i < numAllocations; ++i ) {
+        vmaDestroyImage(vmaAllocator, imagesToFree[i], allocationsToFree[i]);
+    }
+
+    const int numViews = viewsToFree.Size();
+    for ( int i = 0; i < numViews; ++i ) {
+        vkDestroyImageView(vkContext.device, viewsToFree[i], nullptr);
+    }
+
+    const int numSamplers = samplersToFree.Size();
+    for ( int i = 0; i < numSamplers; ++i ) {
+        vkDestroySampler(vkContext.device, samplersToFree[ i ], nullptr);
+    }
+
+    allocationsToFree.Clear();
+    imagesToFree.Clear();
+    viewsToFree.Clear();
+    samplersToFree.Clear();
 }
