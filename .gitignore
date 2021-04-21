@@ -1040,3 +1040,10 @@ Mkfile.old
 dkms.conf
 
 # Libraries are added as git submodules so they can safely be removed
+
+# Visual studio project files
+.vs/
+**.sln
+**.vcxproj
+**.vcxproj.filters
+**.vcxproj.user

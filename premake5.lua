@@ -1,10 +1,9 @@
 require 'scripts/premake-defines'
-require 'scripts/premake-common'
-require 'scripts/premake-triggers'
 require 'scripts/premake-settings'
-require 'scripts/premake-vscode/vscode'
-require 'scripts/premake-cmake/cmake'
 require 'scripts/premake-helpers'
+require 'scripts/premake-triggers'
+require 'scripts/premake-common'
+require 'scripts/premake-cmake/cmake'
 
 language 		"C++"
 cppdialect		"C++17"
