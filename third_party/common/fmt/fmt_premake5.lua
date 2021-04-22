@@ -4,8 +4,8 @@ project "fmt"
     cppdialect "C++17"
     staticruntime "on"
 
-    targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("obj/" .. outputdir .. "/%{prj.name}")
+    targetdir ("build/bin/" .. outputdir .. "/%{prj.name}")
+    objdir ("build/obj/" .. outputdir .. "/%{prj.name}")
 
     files
     {

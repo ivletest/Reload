@@ -3,8 +3,10 @@ project "cJSON"
     language "C"
     staticruntime "on"
 
-    targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("obj/" .. outputdir .. "/%{prj.name}")
+    local cwd = os.getcwd()
+    
+    targetdir ("build/bin/" .. outputdir .. "/%{prj.name}")
+    objdir ("build/obj/" .. outputdir .. "/%{prj.name}")
 
     files
     {

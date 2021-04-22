@@ -1050,4 +1050,4 @@ dkms.conf
 
 #Un-ignore
 !tools/premake5/premake5.exe
-!third_party/SDL2/lib/SDL2.dll
+!third_party/windows/SDL2/lib/SDL2.dll

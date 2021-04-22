@@ -1,8 +1,13 @@
---------------------------------------------------------------------------------
--- PROJECT CONFIGURATION
---------------------------------------------------------------------------------
+workspace(settings.engine_workspace)
+    configurations { "Debug", "Release"}
+    flags { 'MultiProcessorCompile' }
+    
+	configurations { "Debug", "Release"}
+    
+	outputdir = "%{cfg.system}/%{cfg.longname}"
 
-include "../third_party/libs_premake5"
+	targetdir ("build/bin/%{outputdir}/")
+	objdir    ("build/obj/%{outputdir}/")    
 
 project "ReloadEngineCore"
 	kind 			"ConsoleApp" --"StaticLib"
@@ -17,12 +22,12 @@ project "ReloadEngineCore"
 
 	includedirs {
 		"src/",
-		"lib/volk",
-		"lib/VulkanMemoryAllocator/include",
-		"lib/cJSON",
-		"lib/fmt/include",
-		"lib/openal/include",
-		"lib/spdlog/include"
+		"../third_party/common/volk",
+		"../third_party/common/VulkanMemoryAllocator/include",
+		"../third_party/common/cJSON",
+		"../third_party/common/fmt/include",
+		"../third_party/common/openal/include",
+		"../third_party/common/spdlog/include"
 	}
 
 	links {
@@ -31,7 +36,8 @@ project "ReloadEngineCore"
 		"vma",
 		"cJSON",
 		"fmt",
-		"spdlog"
+		"spdlog",
+		"SDL2"
 	}
 
 	filter "system:windows"
@@ -59,7 +65,8 @@ project "ReloadEngineCore"
 
 	-- include paths
 	filter "system:windows"		
-		sysincludedirs {
+		includedirs {
+			"../third_party/windows/SDL2/include"
 		}
 	filter "system:linux"
 		includedirs {
@@ -75,11 +82,12 @@ project "ReloadEngineCore"
 	-- library paths
 	filter "system:windows"
 		libdirs {
-			getFullPath("openal/libs/Win32")
+			getFullPath("openal/libs/Win32"),
+			"../third_party/SDL2/lib"
+
 		}
 	filter "system:linux"
 		libdirs { 
-			"../vendor",
 			"/usr/lib/",
 			"/usr/local/lib/"
 		}
@@ -91,13 +99,17 @@ project "ReloadEngineCore"
 
 	-- linking libs
 	filter "system:windows"
+		includedirs {
+			""
+		}
 		links {
-			"OpenAL32"
+			"OpenAL32",
+			"SDL2"
 		}
 	filter "system:linux"
 		-- Whatever is here gets passed to ld like -lTheNameIPut
 		linkoptions {
-			"-lSDL2 -lSDL2_image -lSDL2_ttf",
+			"-lSDL2",
 			"-lm -ldl -lpthread"
 		}
 		linkoptions{ "-Wl,-rpath=\\$$ORIGIN" }
@@ -134,9 +146,7 @@ project "ReloadEngineCore"
 	-- platform specific compiler options
  	-- mac lovin - they do this -framework thing, hence the no "OgreMain" under Mac's linking libs
 	filter "system:windows"
-		buildoptions {
-			"-fno-rtti"
-		}
+		buildoptions { }
 	filter "system:linux"
 		buildoptions { 
 			"-fPIC",

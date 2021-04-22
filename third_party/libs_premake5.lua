@@ -1,5 +1,9 @@
-include('fmt/fmt_premake5')
-include("cJSON/cJSON_premake5")
-include("volk/volk_premake5")
-include("VulkanMemoryAllocator/vma_premake5")
-include("spdlog/spdlog_premake5")
+workspace(settings.third_party_workspace)
+    configurations { "Debug", "Release" }
+	outputdir = "%{cfg.system}/%{cfg.longname}"
+
+    include('common/fmt/fmt_premake5')
+    include("common/cJSON/cJSON_premake5")
+    include("common/volk/volk_premake5")
+    include("common/VulkanMemoryAllocator/vma_premake5")
+    include("common/spdlog/spdlog_premake5")
