@@ -25,21 +25,17 @@ project "fmt"
         "src/os.cc",
     }
 
-    includedirs
-    {
-        "include",
-        "src"
-    }
+    includedirs { "include", "src" }
 
     defines { "FMT_OS" }
 
     filter "system:windows"
-    systemversion "latest"
+        systemversion "latest"
 
     filter "configurations:Debug"
-    runtime "Debug"
-    symbols "on"
+        runtime "Debug"
+        symbols "on"
 
     filter "configurations:Release"
-    runtime "Release"
-    optimize "on"
+        runtime "Release"
+        optimize "on"

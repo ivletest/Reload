@@ -1,14 +1,14 @@
 <toolSet name="External Tools">
   <tool name="premake generate clion project" showInMainMenu="false" showInEditor="false" showInProject="false" showInSearchPopup="false" disabled="false" useConsole="true" showConsoleOnStdOut="false" showConsoleOnStdErr="false" synchronizeAfterRun="true">
     <exec>
-      <option name="COMMAND" value="$USER_HOME$/Source/Repos/Reload/scripts/platform/linux/premake_gen_clion.sh" />
+      <option name="COMMAND" value="$USER_HOME$/Source/Repos/Reload/scripts/generate/linux/premake_gen_clion.sh" />
       <option name="PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="$USER_HOME$/Source/Repos/Reload/scripts" />
     </exec>
   </tool>
   <tool name="linux clean" showInMainMenu="false" showInEditor="false" showInProject="false" showInSearchPopup="false" disabled="false" useConsole="true" showConsoleOnStdOut="false" showConsoleOnStdErr="false" synchronizeAfterRun="true">
     <exec>
-      <option name="COMMAND" value="$USER_HOME$/Source/Repos/Reload/scripts/platform/linux/clean.sh" />
+      <option name="COMMAND" value="$USER_HOME$/Source/Repos/Reload/scripts/generate/linux/clean.sh" />
       <option name="PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="$USER_HOME$/Source/Repos/Reload/scripts" />
     </exec>

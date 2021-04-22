@@ -70,7 +70,7 @@
 
 #endif
 
-#include "vk_mem_alloc.h"
+#include "lib/vma/vk_mem_alloc.h"
 
 #if defined(__GNUC__) || defined(__GNUG__)
 #   pragma GCC diagnostic pop

@@ -22,12 +22,9 @@ project "spdlog"
         "include/spdlog/fmt/*h",
     }
 
-    includedirs
-    {
-        "include",
-        "../fmt/include",
-    }
+    includedirs { "include", "../fmt/include" }
     links { "fmt" }
+
     defines { "SPDLOG_FMT_EXTERNAL", "SPDLOG_COMPILED_LIB" }
 
     filter "system:windows"

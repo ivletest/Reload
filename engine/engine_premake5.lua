@@ -1,14 +1,3 @@
-workspace(settings.engine_workspace)
-    configurations { "Debug", "Release"}
-    flags { 'MultiProcessorCompile' }
-    
-	configurations { "Debug", "Release"}
-    
-	outputdir = "%{cfg.system}/%{cfg.longname}"
-
-	targetdir ("build/bin/%{outputdir}/")
-	objdir    ("build/obj/%{outputdir}/")    
-
 project "ReloadEngineCore"
 	kind 			"ConsoleApp" --"StaticLib"
 	language 		"C++"
@@ -17,13 +6,15 @@ project "ReloadEngineCore"
 	pchheader "src/precompiled.h"
 	pchsource "src/precompiled.cpp"
 
-	-- package files
+	targetdir ("build/bin/%{outputdir}/")
+	objdir    ("build/obj/%{outputdir}/")
+
+-- package files
 	files { "src/**.h", "src/**.hpp", "src/**.cpp", "src/**.inl" }
 
 	includedirs {
 		"src/",
 		"../third_party/common/volk",
-		"../third_party/common/VulkanMemoryAllocator/include",
 		"../third_party/common/cJSON",
 		"../third_party/common/fmt/include",
 		"../third_party/common/openal/include",
@@ -33,7 +24,6 @@ project "ReloadEngineCore"
 	links {
 		"vulkan",
 		"volk",
-		"vma",
 		"cJSON",
 		"fmt",
 		"spdlog",
