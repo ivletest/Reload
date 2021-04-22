@@ -1047,3 +1047,7 @@ dkms.conf
 **.vcxproj
 **.vcxproj.filters
 **.vcxproj.user
+
+#Un-ignore
+!tools/premake5/premake5.exe
+!third_party/SDL2/lib/SDL2.dll

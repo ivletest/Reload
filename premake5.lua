@@ -1,8 +1,8 @@
-require 'premake-defines'
-require 'premake-settings'
-require 'premake-helpers'
-require 'premake-triggers'
-require 'premake-common'
+require 'defines'
+require 'settings'
+require 'helpers'
+require 'triggers'
+require 'common'
 require 'cmake'
 require 'clion'
 
