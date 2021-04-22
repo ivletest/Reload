@@ -2,7 +2,7 @@
 -- PROJECT CONFIGURATION
 --------------------------------------------------------------------------------
 
-include "lib/libs_premake5"
+include "../third_party/libs_premake5"
 
 project "ReloadEngineCore"
 	kind 			"ConsoleApp" --"StaticLib"
