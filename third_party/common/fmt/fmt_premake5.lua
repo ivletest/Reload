@@ -4,9 +4,6 @@ project "fmt"
     cppdialect "C++17"
     staticruntime "on"
 
-    targetdir ("build/bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("build/obj/" .. outputdir .. "/%{prj.name}")
-
     files
     {
         "include/fmt/chrono.h",

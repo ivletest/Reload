@@ -2,9 +2,6 @@ project "cJSON"
     kind "StaticLib"
     language "C"
     staticruntime "on"
-    
-    targetdir ("build/bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("build/obj/" .. outputdir .. "/%{prj.name}")
 
     files
     {

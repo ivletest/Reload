@@ -4,9 +4,6 @@ project "spdlog"
     cppdialect "C++11"
     staticruntime "on"
 
-    targetdir ("build/bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("build/obj/" .. outputdir .. "/%{prj.name}")
-
     files
     {
         "src/spdlog.cpp",

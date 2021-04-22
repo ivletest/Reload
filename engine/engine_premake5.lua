@@ -6,9 +6,6 @@ project "ReloadEngineCore"
 	pchheader "src/precompiled.h"
 	pchsource "src/precompiled.cpp"
 
-	targetdir ("build/bin/%{outputdir}/")
-	objdir    ("build/obj/%{outputdir}/")
-
 -- package files
 	files { "src/**.h", "src/**.hpp", "src/**.cpp", "src/**.inl" }
 
