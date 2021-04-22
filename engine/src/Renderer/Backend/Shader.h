@@ -2,7 +2,7 @@
 #define __SHADER_H
 
 
-#include "../Common.h"
+#include "Common.h"
 #include "../lib/containers/List.h"
 
 //==============================================================================

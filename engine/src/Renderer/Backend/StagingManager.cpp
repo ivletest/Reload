@@ -4,7 +4,7 @@
 
 #include "StagingManager.h"
 
-#include "../ConfigManager.h"
+#include "ConfigManager.h"
 #include "VulkanCommon.h"
 #include "VulkanHelpers.h"
 #include "VulkanMemory.h"

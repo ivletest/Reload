@@ -4,7 +4,7 @@
 
 #include "RenderSystem.h"
 #include "../Common.h"
-#include "ImageManager.h"
+#include "Renderer/Backend/ImageManager.h"
 
 RenderSystem::RenderSystem() {
     m_Initialized = false;

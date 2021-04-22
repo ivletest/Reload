@@ -70,7 +70,7 @@
 
 #endif
 
-#include "../../lib/VulkanMemoryAllocator/include/vk_mem_alloc.h"
+#include "vk_mem_alloc.h"
 
 #if defined(__GNUC__) || defined(__GNUG__)
 #   pragma GCC diagnostic pop
