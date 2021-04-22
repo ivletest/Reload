@@ -5,7 +5,7 @@
 #ifndef RELOAD_RENDER_PIPELINE_MANAGER_H
 #define RELOAD_RENDER_PIPELINE_MANAGER_H
 
-#include "../Common.h"
+#include "Common.h"
 #include "VulkanCommon.h"
 
 struct RenderProg {

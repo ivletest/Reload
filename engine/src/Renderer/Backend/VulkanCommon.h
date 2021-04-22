@@ -8,7 +8,7 @@
 #include "ReloadLib/Containers/List.h"
 #include "RenderCommon.h"
 
-#include "../../lib/VulkanMemoryAllocator/include/vk_mem_alloc.h"
+#include "vk_mem_alloc.h"
 
 using ExtList = std::vector<const char *>;
 
