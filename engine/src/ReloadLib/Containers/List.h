@@ -5,6 +5,8 @@
 #ifndef RELOAD_LIST_H
 #define RELOAD_LIST_H
 
+#include "precompiled.h"
+
 #include <cassert>
 #include "Common.h"
 #include "ReloadLib/sys/Heap.h"

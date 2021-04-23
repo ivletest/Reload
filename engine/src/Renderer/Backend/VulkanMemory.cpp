@@ -3,6 +3,7 @@
 //
 
 #include "VulkanMemory.h"
+
 #include "VulkanCommon.h"
 
 VmaAllocator        vmaAllocator;

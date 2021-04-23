@@ -5,6 +5,7 @@
 #ifndef RELOAD_CONTEXT_H
 #define RELOAD_CONTEXT_H
 
+#include "precompiled.h"
 
 class Context {
 

@@ -306,7 +306,7 @@ Initializes the render backend.
 */
 void RenderBackend::Init() {
     windowManager.EnumerateDisplays();
-    windowManager.CreateWindow();
+    windowManager.CreateSDLWindow();
 
     VK_CHECK(volkInitialize())
 

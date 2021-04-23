@@ -1,7 +1,7 @@
 #ifndef __SYS_FILE_H
 #define __SYS_FILE_H
 
-#include <string>
+#include "precompiled.h"
 
 class File {
 public:

@@ -5,15 +5,14 @@ staticruntime "on"
 
 files  {  "volk.h", "volk.c" }
 
-includedirs { "" }
-links { "vulkan" }
+includedirs { "", IncludeDir.VulkanSDK }
+libdirs { LibraryDir.VulkanSDK }
+links { Library.Vulkan }
 
 defines( "VOLK_STATIC_DEFINES" )
 
 filter "system:windows"
     defines { "VK_USE_PLATFORM_WIN32_KHR" }
-filter "system:linux"
-    includedirs("/usr/include/vulkan")
 
 filter "configurations:Debug"
 runtime "Debug"

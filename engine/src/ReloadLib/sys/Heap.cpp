@@ -8,7 +8,11 @@ void *Mem::Alloc16(const int size) {
     }
 
     const int paddedSize = (size + 15) & ~15;
+#ifdef WIN32
+    return _aligned_malloc((size_t)paddedSize, 16);
+#else
     return std::aligned_alloc((size_t)paddedSize, 16);
+#endif
 }
 
 void *	Mem::ClearedAlloc(const size_t size) {

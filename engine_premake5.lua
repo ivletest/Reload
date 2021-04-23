@@ -3,36 +3,37 @@ project "ReloadEngineCore"
 	language 		"C++"
 	cppdialect		"C++17"
 	staticruntime 	"on"
-	pchheader "src/precompiled.h"
-	pchsource "src/precompiled.cpp"
+	pchheader "precompiled.h"
+	pchsource "engine/src/precompiled.cpp"
 
 -- package files
-	files { "src/**.h", "src/**.hpp", "src/**.cpp", "src/**.inl" }
+	files { "engine/src/**.h", "engine/src/**.hpp", "engine/src/**.cpp", "engine/src/**.inl" }
 
 	includedirs {
-		"src/",
-		"../third_party/common/volk",
-		"../third_party/common/cJSON",
-		"../third_party/common/fmt/include",
-		"../third_party/common/openal/include",
-		"../third_party/common/spdlog/include"
+		IncludeDir.ReloadEngine,
+		IncludeDir.VulkanSDK,
+		IncludeDir.Volk,
+		IncludeDir.SDL2,
+		IncludeDir.cJSON,
+		IncludeDir.Fmt,
+		IncludeDir.Spdlog,
+		IncludeDir.Global
+	}
+
+	libdirs {
+		LibraryDir.VulkanSDK,
+		LibraryDir.SDL2,
+		LibraryDir.GLobal
 	}
 
 	links {
-		"vulkan",
-		"volk",
-		"cJSON",
-		"fmt",
-		"spdlog",
-		"SDL2"
+		Library.Vulkan,
+		Library.Volk,
+		Library.SDL2,
+		Library.cJSON,
+		Library.Fmt,
+		Library.Spdlog
 	}
-
-	filter "system:windows"
-		defines { "WIN32", "_WINDOWS" }
-	filter "system:linux"
-		defines { "LINUX", "_X11" }
-	filter "system:macosx"
-		defines { "MACOSX" }
 
 	filter "architecture:x86_64"
 		defines { "RLD_SSE" ,"USE_VMA_ALLOCATOR" }
@@ -50,60 +51,28 @@ project "ReloadEngineCore"
 		symbols "On"
 		runtime "Release"
 
-	-- include paths
-	filter "system:windows"		
-		includedirs {
-			"../third_party/windows/SDL2/include"
-		}
-	filter "system:linux"
-		includedirs {
-			"/usr/include",
-			"/usr/local/include",
-			"/usr/include/vulkan",
-			"/usr/include/SDL2",
-		}
-	filter "system:macosx"
-		sysincludedirs {
-		}
 
-	-- library paths
+	-- WINDOWS
 	filter "system:windows"
-		libdirs {
-			getFullPath("openal/libs/Win32"),
-			"../third_party/SDL2/lib"
+		defines { "WIN32", "_WINDOWS" }		
 
-		}
+	-- LINUX
 	filter "system:linux"
-		libdirs { 
-			"/usr/lib/",
-			"/usr/local/lib/"
-		}
+		defines { "LINUX", "_X11" }
+		
+	
+	-- MACOSX
 	filter "system:macosx"
-		-- See the bottom of the file for the mac
-		-- way of doing this.
-		libdirs {
-		}
+		defines { "MACOSX" }
 
 	-- linking libs
 	filter "system:windows"
-		includedirs {
-			""
-		}
-		links {
-			"OpenAL32",
-			"SDL2"
-		}
+		-- To Add
 	filter "system:linux"
 		-- Whatever is here gets passed to ld like -lTheNameIPut
-		linkoptions {
-			"-lSDL2",
-			"-lm -ldl -lpthread"
-		}
+		linkoptions { "-lm -ldl -lpthread" }
 		linkoptions{ "-Wl,-rpath=\\$$ORIGIN" }
-		links {
-			"X11", 
-			"pthread"
-		}
+		links { "X11", "pthread" }
 	filter "system:macosx"
 		-- Again, see the bottom of the file for the
 		-- mac way of doing this.
@@ -116,7 +85,7 @@ project "ReloadEngineCore"
 		postbuildcommands { }
 	filter "system:linux"
 		postbuildcommands {
-			"{COPY} ../assets %{cfg.targetdir}"
+			"{COPY} engine/assets %{cfg.targetdir}"
 		}
 	filter "system:macosx"
 		postbuildcommands { }

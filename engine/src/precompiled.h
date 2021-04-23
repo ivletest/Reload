@@ -4,7 +4,7 @@
 #include <unordered_set>
 #include <optional>
 
-#include "SDL2/SDL.h"
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_vulkan.h>
 #include <volk.h>

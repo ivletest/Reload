@@ -6,6 +6,7 @@
 #define RELOAD_ARRAY_H
 
 #include "precompiled.h"
+
 #include <array>
 
 //template <class T, uint32_t N>

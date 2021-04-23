@@ -26,6 +26,7 @@ project "spdlog"
 
     filter "system:windows"
         buildoptions { "/Zc:__cplusplus" }
+        
 
     filter "configurations:Debug"
         runtime "Debug"

@@ -2,6 +2,8 @@
 #define _SYS_PATHS_JOIN_H
 
 // #define USE_SRT
+#include "precompiled.h"
+
 #include "../Common.h"
 
 //==============================================================================

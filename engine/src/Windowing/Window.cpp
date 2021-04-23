@@ -3,7 +3,7 @@
 //
 
 #include "Window.h"
-#include "SDL_syswm.h"
+#include <SDL2/SDL_syswm.h>
 #include "../ConfigManager.h"
 
 WindowManager windowManager;
@@ -44,7 +44,7 @@ DESCRIPTION:
 Configures and creates the SDL Window.
 ================================================================================
 */
-void WindowManager::CreateWindow() {
+void WindowManager::CreateSDLWindow() {
 
     int width, height, display;
     uint32_t flags = SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN;

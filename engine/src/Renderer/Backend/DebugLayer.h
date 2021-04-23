@@ -1,5 +1,8 @@
-//#ifndef __DEBUG_LAYER_H
-//#define __DEBUG_LAYER_H
+#ifndef __DEBUG_LAYER_H
+#define __DEBUG_LAYER_H
+
+#include "precompiled.h"
+
 //
 //#include <SDL2/SDL.h>
 //
@@ -11,4 +14,4 @@
 //void debugLayer_Draw(SDL_Window *window);
 //void debugLayer_Cleanup(void);
 //
-//#endif // !__DEBUG_LAYER_H
+#endif // !__DEBUG_LAYER_H

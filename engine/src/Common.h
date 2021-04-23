@@ -1,6 +1,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include "precompiled.h"
+
 #include <cstdio>
 #include <cstring>
 #include <cstdint>

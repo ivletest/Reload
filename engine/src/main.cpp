@@ -1,6 +1,7 @@
+#include "precompiled.h"
+
 #include "ConfigManager.h"
 #include "Game.h"
-#include "precompiled.h"
 
 int main(int argc, char* argv[]) {
     ConfigManager::LoadSystemConfig();

@@ -6,6 +6,7 @@
 #define RELOAD_MEMORY_ALLOCATOR_H
 
 #include "precompiled.h"
+
 #include "Common.h"
 
 #if defined(_MSVC_LANG)

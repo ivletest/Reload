@@ -5,6 +5,8 @@
 #ifndef RELOAD_HEAP_H
 #define RELOAD_HEAP_H
 
+#include "precompiled.h"
+
 #include "Common.h"
 
 class Mem {

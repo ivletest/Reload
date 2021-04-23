@@ -1,7 +1,6 @@
 #include "File.h"
 
 #include <stdio.h>
-#include <unistd.h>
 
 #ifdef __linux__
  #include <linux/limits.h>

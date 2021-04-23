@@ -6,6 +6,7 @@
 #define RELOAD_IMAGE_H
 
 #include "precompiled.h"
+
 #include "ReloadLib/RldLib.h"
 #include "ReloadLib/Containers/List.h"
 #include "VulkanCommon.h"

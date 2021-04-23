@@ -4,7 +4,7 @@
 
 #include "ConfigManager.h"
 
-#include <cjson/cJSON.h>
+#include <cJSON.h>
 #include "ReloadLib/File.h"
 
 #ifndef RLD_DEBUG

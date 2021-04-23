@@ -1,9 +1,10 @@
 #ifndef __SHADER_H
 #define __SHADER_H
 
+#include "precompiled.h"
 
 #include "Common.h"
-#include "../lib/containers/List.h"
+#include "ReloadLib/Containers/List.h"
 
 //==============================================================================
 // Enums

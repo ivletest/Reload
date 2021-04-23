@@ -6,6 +6,7 @@
 #define RELOAD_WINDOW_H
 
 #include "precompiled.h"
+
 #include "ReloadLib/Containers/List.h"
 
 struct RDisplay {
@@ -27,7 +28,7 @@ struct RWindow {
 class WindowManager {
 public:
     void EnumerateDisplays();
-    void CreateWindow();
+    void CreateSDLWindow();
     void DestroyWindow();
 };
 

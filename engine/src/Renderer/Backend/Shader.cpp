@@ -1,4 +1,4 @@
-//#include "Shader.h"
+#include "Shader.h"
 //
 //#include <SDL2/SDL_filesystem.h>
 //#include <SDL2/SDL_rwops.h>

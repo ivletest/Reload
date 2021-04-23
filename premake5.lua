@@ -12,12 +12,18 @@ workspace(settings.reload_engine)
     language 		"C++"
     cppdialect		"C++17"
     configurations { "Debug", "Release" }
+    architecture "x86_64"
 
     location "build"
-    outputdir = "%{rootdir}/build/%{os.outputof('uname')}/%{cfg.longname}"
+    outputdir = "%{rootdir}/build/%{cfg.longname}"
 
     targetdir ("%{outputdir}")
     objdir    ("%{outputdir}/obj")
 
-    include "engine/engine_premake5"
-    include "third_party/libs_premake5"
+    include "dependencies"
+    
+    include "third_party/common/fmt/fmt_premake5"
+    include "third_party/common/cJSON/cJSON_premake5"
+    include "third_party/common/volk/volk_premake5"
+    include "third_party/common/spdlog/spdlog_premake5"
+    include "engine_premake5"

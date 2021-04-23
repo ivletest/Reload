@@ -5,6 +5,8 @@
 #ifndef RELOAD_RENDER_COMMON_H
 #define RELOAD_RENDER_COMMON_H
 
+#include "precompiled.h"
+
 // everything that is needed by the backend needs
 // to be double buffered to allow it to run in
 // parallel on a dual cpu machine

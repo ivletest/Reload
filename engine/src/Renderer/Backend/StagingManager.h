@@ -6,6 +6,7 @@
 #define RELOAD_STAGING_MANAGER_H
 
 #include "precompiled.h"
+
 #include "RenderCommon.h"
 #include "VulkanCommon.h"
 
