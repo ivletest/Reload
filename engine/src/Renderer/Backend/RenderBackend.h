@@ -1,8 +1,6 @@
 #ifndef RELOAD_RENDER_BACKEND_H
 #define RELOAD_RENDER_BACKEND_H
 
-#include "precompiled.h"
-
 #include "RenderCommon.h"
 #include "VulkanCommon.h"
 #include "ReloadLib/Containers/Array.h"

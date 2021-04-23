@@ -5,8 +5,6 @@
 #ifndef RELOAD_VULKAN_COMMON_H
 #define RELOAD_VULKAN_COMMON_H
 
-#include "precompiled.h"
-
 #include "ReloadLib/Containers/List.h"
 #include "RenderCommon.h"
 

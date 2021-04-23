@@ -1,8 +1,6 @@
 #ifndef SYS_DEFS_H
 #define SYS_DEFS_H
 
-#include "precompiled.h"
-
 #define SCREEN_WIDTH   1280
 #define SCREEN_HEIGHT  720
 

@@ -3,11 +3,11 @@
 #include <stdio.h>
 
 #ifdef __linux__
- #include <linux/limits.h>
- #define RLD_PATH_MAX = PATH_MAX
+#include <linux/limits.h>
+const auto RLD_PATH_MAX = PATH_MAX;
 #else
- #include <stdlib.h>
- #define RLD_PATH_MAX = _MAX_PATH
+#include <stdlib.h>
+const auto RLD_PATH_MAX = _MAX_PATH;
 #endif
 
 #include "../Common.h"

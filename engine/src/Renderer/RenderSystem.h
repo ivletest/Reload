@@ -5,8 +5,6 @@
 #ifndef RELOAD_RENDERSYSTEM_H
 #define RELOAD_RENDERSYSTEM_H
 
-#include "precompiled.h"
-
 #include "Renderer/Backend/RenderBackend.h"
 
 class RenderSystem {

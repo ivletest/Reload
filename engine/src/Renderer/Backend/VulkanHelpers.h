@@ -5,8 +5,6 @@
 #ifndef RELOAD_VULKAN_HELPERS_H
 #define RELOAD_VULKAN_HELPERS_H
 
-#include "precompiled.h"
-
 #include "VulkanCommon.h"
 
 /*

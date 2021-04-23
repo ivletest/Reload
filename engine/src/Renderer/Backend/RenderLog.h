@@ -5,8 +5,6 @@
 #ifndef RELOAD_RENDERER_LOGGER_H
 #define RELOAD_RENDERER_LOGGER_H
 
-#include "precompiled.h"
-
 #include "Common.h"
 #include "VulkanCommon.h"
 #include "RenderCommon.h"

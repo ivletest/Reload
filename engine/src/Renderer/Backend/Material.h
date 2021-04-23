@@ -5,8 +5,6 @@
 #ifndef RELOAD_MATERIAL_H
 #define RELOAD_MATERIAL_H
 
-#include "precompiled.h"
-
 class Material {
 
 };

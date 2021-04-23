@@ -5,7 +5,7 @@
 #ifndef RELOAD_ARRAY_H
 #define RELOAD_ARRAY_H
 
-#include "precompiled.h"
+#include "Common.h"
 
 #include <array>
 

@@ -1,8 +1,6 @@
 #ifndef __DEBUG_LAYER_H
 #define __DEBUG_LAYER_H
 
-#include "precompiled.h"
-
 //
 //#include <SDL2/SDL.h>
 //

@@ -5,8 +5,6 @@
 #ifndef RELOAD_IMAGE_MANAGER_H
 #define RELOAD_IMAGE_MANAGER_H
 
-#include "precompiled.h"
-
 #include <unordered_map>
 #include "Image.h"
 

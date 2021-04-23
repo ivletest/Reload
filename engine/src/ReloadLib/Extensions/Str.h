@@ -5,9 +5,7 @@
 #ifndef RELOAD_STR_H
 #define RELOAD_STR_H
 
-#include "precompiled.h"
-
-
+#include "Common.h"
 
 class Str {
 public:

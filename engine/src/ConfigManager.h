@@ -5,8 +5,6 @@
 #ifndef RELOAD_CONFIGMANAGER_H
 #define RELOAD_CONFIGMANAGER_H
 
-#include "precompiled.h"
-
 #include "Common.h"
 
 extern GameInfo                    gameInfo;

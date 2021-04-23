@@ -3,30 +3,29 @@ project "ReloadEngineCore"
 	language 		"C++"
 	cppdialect		"C++17"
 	staticruntime 	"on"
-	pchheader "precompiled.h"
-	pchsource "engine/src/precompiled.cpp"
 
 -- package files
 	files { "engine/src/**.h", "engine/src/**.hpp", "engine/src/**.cpp", "engine/src/**.inl" }
 
 	includedirs {
+		IncludeDir.Common,
 		IncludeDir.ReloadEngine,
 		IncludeDir.VulkanSDK,
 		IncludeDir.Volk,
 		IncludeDir.SDL2,
 		IncludeDir.cJSON,
 		IncludeDir.Fmt,
-		IncludeDir.Spdlog,
-		IncludeDir.Global
+		IncludeDir.Spdlog
 	}
 
 	libdirs {
+		LibraryDir.Common,
 		LibraryDir.VulkanSDK,
-		LibraryDir.SDL2,
-		LibraryDir.GLobal
+		LibraryDir.SDL2
 	}
 
 	links {
+		Library.Common,
 		Library.Vulkan,
 		Library.Volk,
 		Library.SDL2,

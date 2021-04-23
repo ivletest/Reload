@@ -5,7 +5,7 @@
 #ifndef RELOAD_RENDER_COMMON_H
 #define RELOAD_RENDER_COMMON_H
 
-#include "precompiled.h"
+#include "Common.h"
 
 // everything that is needed by the backend needs
 // to be double buffered to allow it to run in

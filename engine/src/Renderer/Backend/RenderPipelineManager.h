@@ -5,8 +5,6 @@
 #ifndef RELOAD_RENDER_PIPELINE_MANAGER_H
 #define RELOAD_RENDER_PIPELINE_MANAGER_H
 
-#include "precompiled.h"
-
 #include "Common.h"
 #include "VulkanCommon.h"
 

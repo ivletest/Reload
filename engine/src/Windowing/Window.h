@@ -5,8 +5,6 @@
 #ifndef RELOAD_WINDOW_H
 #define RELOAD_WINDOW_H
 
-#include "precompiled.h"
-
 #include "ReloadLib/Containers/List.h"
 
 struct RDisplay {

@@ -1,8 +1,6 @@
 #ifndef __GAME_H
 #define __GAME_H
 
-#include "precompiled.h"
-
 #include "Common.h"
 #include "Renderer/RenderSystem.h"
 
