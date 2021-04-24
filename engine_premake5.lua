@@ -83,7 +83,7 @@ project "ReloadEngineCore"
 	filter "system:windows"
 		postbuildcommands {
 			"{COPY} %{rootdir}/engine/assets %{outputdir}",
-			"{COPY} %{rootdir}/third_party/windows/SDL2/lib/SDL2.dll %{outputdir}"
+			"{COPY} %{LibraryDir.SDL2}/SDL2.dll %{outputdir}"
 		}
 	filter "system:linux"
 		postbuildcommands { }
