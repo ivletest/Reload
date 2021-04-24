@@ -24,8 +24,8 @@ workspace(settings.reload_engine)
 
     include "dependencies"
     
-    include "third_party/common/fmt/fmt_premake5"
-    include "third_party/common/cJSON/cJSON_premake5"
-    include "third_party/common/volk/volk_premake5"
-    include "third_party/common/spdlog/spdlog_premake5"
+    include "third_party/fmt/fmt_premake5"
+    include "third_party/cJSON/cJSON_premake5"
+    include "third_party/volk/volk_premake5"
+    include "third_party/spdlog/spdlog_premake5"
     include "engine_premake5"

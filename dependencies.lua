@@ -8,13 +8,13 @@ if os.host() == "windows" then
     -- Include directories
     IncludeDir.Common = { }
     IncludeDir.VulkanSDK = "%{VULKAN_SDK}/Include"
-    IncludeDir.SDL2 = "third_party/windows/SDL2/include"
+    IncludeDir.SDL2 = "%{VULKAN_SDK}/Third-Party/Include"
     IncludeDir.OpenAL = ""
     
     -- Library directories
     LibraryDir.Common = { }
     LibraryDir.VulkanSDK = "%{VULKAN_SDK}/Lib"
-    LibraryDir.SDL2 = "third_party/windows/SDL2/lib"
+    LibraryDir.SDL2 = "%{VULKAN_SDK}/Third-Party/Bin"
 
     -- Libraries
     Library.Common = { "kernel32", "user32", "gdi32" }
@@ -43,10 +43,10 @@ if os.host() == "linux" then
 end
 -- Includes
 IncludeDir.ReloadEngine = "engine/src"
-IncludeDir.Volk = "third_party/common/volk"
-IncludeDir.cJSON = "third_party/common/cJSON"
-IncludeDir.Fmt = "third_party/common/fmt/include"
-IncludeDir.Spdlog = "third_party/common/spdlog/include"
+IncludeDir.Volk = "third_party/volk"
+IncludeDir.cJSON = "third_party/cJSON"
+IncludeDir.Fmt = "third_party/fmt/include"
+IncludeDir.Spdlog = "third_party/spdlog/include"
 
 -- Libraries
 Library.Volk = "volk"

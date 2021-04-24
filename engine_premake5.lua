@@ -111,13 +111,3 @@ project "ReloadEngineCore"
 			"-framework OpenAL",
 			"-fno-rtti"
 		}
-
-	filter "files:**.ttf"
-
-	-- this is simply a message shown in the Visual Studio output
-	buildmessage "converting %{file.relpath} to dds ..."
-
-	-- this is the actual custom compilation command
-	buildcommands {
-		"ddsconverter --input=%{file.abspath} --output=%{cfg.linktarget.directory}"
-	}
