@@ -81,11 +81,12 @@ project "ReloadEngineCore"
 	-- post build commands
 
 	filter "system:windows"
-		postbuildcommands { }
-	filter "system:linux"
 		postbuildcommands {
-			"{COPY} engine/assets %{cfg.targetdir}"
+			"{COPY} %{rootdir}/engine/assets %{outputdir}",
+			"{COPY} %{rootdir}/third_party/windows/SDL2/lib/SDL2.dll %{outputdir}"
 		}
+	filter "system:linux"
+		postbuildcommands { }
 	filter "system:macosx"
 		postbuildcommands { }
 

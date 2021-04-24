@@ -15,6 +15,8 @@ workspace(settings.reload_engine)
     architecture "x86_64"
 
     location "build"
+
+    rootdir = os.getcwd()
     outputdir = "%{rootdir}/build/%{cfg.longname}"
 
     targetdir ("%{outputdir}")
