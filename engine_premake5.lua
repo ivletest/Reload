@@ -53,13 +53,13 @@ project "ReloadEngineCore"
 
 	-- WINDOWS
 	filter "system:windows"
-		defines { "WIN32", "_WINDOWS" }		
+		defines { "WIN32", "_WINDOWS" }
 
 	-- LINUX
 	filter "system:linux"
 		defines { "LINUX", "_X11" }
-		
-	
+
+
 	-- MACOSX
 	filter "system:macosx"
 		defines { "MACOSX" }
@@ -95,7 +95,7 @@ project "ReloadEngineCore"
 	filter "system:windows"
 		buildoptions { }
 	filter "system:linux"
-		buildoptions { 
+		buildoptions {
 			"-fPIC",
 			"-Wall",
 			"-Wextra",

@@ -31,7 +31,7 @@ if os.host() == "linux" then
     IncludeDir.OpenAL = "third_party/common/OpenAL/include"
 
     -- Library directories
-    LibraryDir.Global = { "/usr/lib/", "/usr/local/lib/" }
+    LibraryDir.Common = { "/usr/lib/", "/usr/local/lib/" }
     LibraryDir.VulkanSDK = ""
     LibraryDir.SDL2 = ""
 
