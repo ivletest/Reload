@@ -1,10 +1,16 @@
-require 'defines'
-require 'settings'
-require 'helpers'
-require 'triggers'
-require 'common'
-require 'cmake'
-require 'clion'
+if _ACTION == "clion" then
+    require "settings"
+    require "helpers"
+    require "triggers"
+    require "common"
+    require "cmake"
+    require "clion"
+else
+    require "scripts/premake/settings"
+    require "scripts/premake/helpers"
+    require "scripts/premake/triggers"
+    require "scripts/premake/common"
+end
 
 workspace(settings.reload_engine)
     configurations { "Debug", "Release" }

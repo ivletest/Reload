@@ -1,15 +1,15 @@
-VULKAN_SDK = os.getenv("VULKAN_SDK")
-
 IncludeDir  = {}
 LibraryDir  = {}
 Library     = {}
 
 if os.host() == "windows" then
+    VULKAN_SDK = os.getenv("VULKAN_SDK")
+
     -- Include directories
     IncludeDir.Common = { }
     IncludeDir.VulkanSDK = "%{VULKAN_SDK}/Include"
     IncludeDir.SDL2 = "%{VULKAN_SDK}/Third-Party/Include"
-    IncludeDir.OpenAL = ""
+    IncludeDir.OpenAL = { }
     
     -- Library directories
     LibraryDir.Common = { }
@@ -32,8 +32,8 @@ if os.host() == "linux" then
 
     -- Library directories
     LibraryDir.Common = { "/usr/lib/", "/usr/local/lib/" }
-    LibraryDir.VulkanSDK = ""
-    LibraryDir.SDL2 = ""
+    LibraryDir.VulkanSDK = { }
+    LibraryDir.SDL2 = { }
 
     -- Libraries
     Library.Common = { }

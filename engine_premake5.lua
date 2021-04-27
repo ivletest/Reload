@@ -75,25 +75,15 @@ project "ReloadEngineCore"
 	filter "system:macosx"
 		-- Again, see the bottom of the file for the
 		-- mac way of doing this.
-		links {
-		}
-
-	-- post build commands
-
-	filter "system:windows"
-		postbuildcommands {
-			"{COPY} %{rootdir}/engine/assets %{outputdir}",
-			"{COPY} %{LibraryDir.SDL2}/SDL2.dll %{outputdir}"
-		}
-	filter "system:linux"
-		postbuildcommands { }
-	filter "system:macosx"
-		postbuildcommands { }
 
 	-- platform specific compiler options
  	-- mac lovin - they do this -framework thing, hence the no "OgreMain" under Mac's linking libs
 	filter "system:windows"
-		buildoptions { }
+		buildoptions {}
+		postbuildcommands {
+			"{COPY} %{rootdir}/engine/assets %{outputdir}",
+			"{COPY} %{LibraryDir.SDL2}/SDL2.dll %{outputdir}"
+		}
 	filter "system:linux"
 		buildoptions {
 			"-fPIC",
@@ -104,8 +94,11 @@ project "ReloadEngineCore"
 			"-std=gnu++17",
 			"-fno-rtti"
 		}
-		filter {'system:linux', 'architecture:x86_64'}
-			buildoptions {"-msse4.1" }
+		postbuildcommands {
+			"{COPY} %{rootdir}/engine/assets %{outputdir}",
+		}
+	filter {'system:linux', 'architecture:x86_64'}
+		buildoptions {"-msse4.1" }
 	filter "system:macosx"
 		buildoptions {
 			"-framework OpenAL",

@@ -8,4 +8,4 @@ cd $DIR/../../../
 
 tools/premake5/premake5 gmake2 -j4 --scripts=scripts/premake
 cd build
-make "$*"
+make
